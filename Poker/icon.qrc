@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../source/picture/icon/icon_application.jpg</file>
+        <file>../source/picture/icon/worning.jpg</file>
+        <file>../source/picture/icon/info.jpg</file>
+    </qresource>
+</RCC>

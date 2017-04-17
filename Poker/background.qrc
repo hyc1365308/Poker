@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../source/picture/background/login.jpg</file>
+        <file>../source/picture/background/inputLine.jpg</file>
+        <file>../source/picture/background/loginButton.jpg</file>
+        <file>../source/picture/background/pureback.jpg</file>
+        <file>../source/picture/background/pureback2.jpg</file>
+        <file>../source/picture/background/blue.jpg</file>
+        <file>../source/picture/background/danya.jpg</file>
+    </qresource>
+</RCC>
