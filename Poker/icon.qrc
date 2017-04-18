@@ -2,6 +2,12 @@
     <qresource prefix="/">
         <file>../source/picture/icon/icon_application.jpg</file>
         <file>../source/picture/icon/worning.jpg</file>
-        <file>../source/picture/icon/info.jpg</file>
+        <file>../source/picture/icon/tips.jpg</file>
+        <file>../source/picture/icon/rank.jpg</file>
+        <file>../source/picture/icon/setting.jpg</file>
+        <file>../source/picture/icon/person.png</file>
+        <file>../source/picture/icon/chouma.png</file>
+        <file>../source/picture/icon/pagedown.png</file>
+        <file>../source/picture/icon/pageup.png</file>
     </qresource>
 </RCC>

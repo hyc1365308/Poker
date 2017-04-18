@@ -30,6 +30,9 @@ private slots:
 
     void on_userID_textChanged(const QString &arg1);
 
+public:
+    QString getuserid();
+
 public slots:
     void _sign_in();
     void _cancel();
@@ -45,6 +48,7 @@ private:
     QLineEdit *EM;//用户注册框输入email
     QPushButton *confirm;//用户注册框确认按钮
     QPushButton *cancel;//用户注册框重新输入按钮
+    QString userID;
     bool rememberPd;
     bool autoLogin;
 };

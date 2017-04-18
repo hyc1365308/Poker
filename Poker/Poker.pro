@@ -14,15 +14,20 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    login.cpp
+    login.cpp \
+    roomlist.cpp
 
 HEADERS  += mainwindow.h \
-    login.h
+    login.h \
+    roomlist.h
 
 FORMS    += mainwindow.ui \
-    login.ui
+    login.ui \
+    roomlist.ui
 
 RESOURCES += \
-    allpiker.qrc \
     background.qrc \
-    icon.qrc
+    icon.qrc \
+    allpoker.qrc
+
+DISTFILES +=

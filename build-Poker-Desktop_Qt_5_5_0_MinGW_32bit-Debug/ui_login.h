@@ -44,9 +44,11 @@ public:
         icon.addFile(QStringLiteral(":/source/picture/icon/icon_application.jpg"), QSize(), QIcon::Normal, QIcon::Off);
         login->setWindowIcon(icon);
         login->setStyleSheet(QStringLiteral("border-image: url(:/source/picture/background/login.jpg);"));
+        login->setModal(true);
         loginButton = new QPushButton(login);
         loginButton->setObjectName(QStringLiteral("loginButton"));
         loginButton->setGeometry(QRect(240, 218, 140, 48));
+        loginButton->setCursor(QCursor(Qt::OpenHandCursor));
         loginButton->setStyleSheet(QStringLiteral("border-image: url(:/source/picture/background/loginButton.jpg);"));
         Password = new QLineEdit(login);
         Password->setObjectName(QStringLiteral("Password"));
@@ -102,11 +104,13 @@ public:
         font4.setBold(true);
         font4.setWeight(75);
         sign_in->setFont(font4);
+        sign_in->setCursor(QCursor(Qt::OpenHandCursor));
         sign_in->setStyleSheet(QStringLiteral("background-color: transparent;border-image:url();"));
         info = new QLabel(login);
         info->setObjectName(QStringLiteral("info"));
         info->setGeometry(QRect(315, 280, 55, 18));
         info->setFont(font4);
+        info->setCursor(QCursor(Qt::OpenHandCursor));
         info->setStyleSheet(QStringLiteral("background-color: transparent;border-image:url();"));
         line = new QFrame(login);
         line->setObjectName(QStringLiteral("line"));

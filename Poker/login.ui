@@ -20,6 +20,9 @@
   <property name="styleSheet">
    <string notr="true">border-image: url(:/source/picture/background/login.jpg);</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <widget class="QPushButton" name="loginButton">
    <property name="geometry">
     <rect>
@@ -28,6 +31,9 @@
      <width>140</width>
      <height>48</height>
     </rect>
+   </property>
+   <property name="cursor">
+    <cursorShape>OpenHandCursor</cursorShape>
    </property>
    <property name="styleSheet">
     <string notr="true">border-image: url(:/source/picture/background/loginButton.jpg);</string>
@@ -153,6 +159,9 @@ border-image: url(:/source/picture/background/pureback2.jpg);</string>
      <bold>true</bold>
     </font>
    </property>
+   <property name="cursor">
+    <cursorShape>OpenHandCursor</cursorShape>
+   </property>
    <property name="styleSheet">
     <string notr="true">background-color: transparent;border-image:url();</string>
    </property>
@@ -176,6 +185,9 @@ border-image: url(:/source/picture/background/pureback2.jpg);</string>
      <weight>75</weight>
      <bold>true</bold>
     </font>
+   </property>
+   <property name="cursor">
+    <cursorShape>OpenHandCursor</cursorShape>
    </property>
    <property name="styleSheet">
     <string notr="true">background-color: transparent;border-image:url();</string>

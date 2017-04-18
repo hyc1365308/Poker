@@ -16,7 +16,7 @@ login::login(QWidget *parent) :
     ui->setupUi(this);
     rememberPd = false;
     autoLogin = false;
-    setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     //规定密码只能为英文大小写字母和数字
     QRegExp regExp("[A-Za-z0-9]+");
     ui->Password->setValidator(new QRegExpValidator(regExp,this));
@@ -34,7 +34,7 @@ login::login(QWidget *parent) :
     QPixmap pixmap(":/source/picture/background/blue.jpg");
     palette.setBrush(QPalette::Window, QBrush(pixmap));
     infoDialog->setPalette(palette);
-
+    //infoDialog->setWindowFlags(Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     infoDialog->resize(300,200);
     QVBoxLayout *v_layout = new QVBoxLayout;
     v_layout->setSpacing(2);
@@ -68,6 +68,7 @@ login::login(QWidget *parent) :
     signDialog->setWindowTitle("用户注册");
     signDialog->setStyleSheet("border-image:url();");
     signDialog->setAutoFillBackground(true);
+    //signDialog->setWindowFlags(Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     QPalette palette1;
     QPixmap pixmap1(":/source/picture/background/danya.jpg");
     palette1.setBrush(QPalette::Window, QBrush(pixmap1));
@@ -211,6 +212,7 @@ void login::on_loginButton_clicked()
             scfg.sync();
             autoLogin = false;
         }
+        userID = userid;
         accept();
         return;
     }
@@ -225,12 +227,16 @@ bool login::eventFilter(QObject *obj, QEvent *ev)
     if (obj == ui->sign_in && ev->type() == QEvent::MouseButtonPress)
     {
         //进行sign in操作
-        sign_in();
+        QMouseEvent *mouseevent = static_cast<QMouseEvent*>(ev);
+        if (mouseevent->buttons()&Qt::LeftButton)
+            sign_in();
     }
     else if (obj == this->ui->info && ev->type() == QEvent::MouseButtonPress)
     {
         //进行info显示
-        show_info();
+        QMouseEvent *mouseevent = static_cast<QMouseEvent*>(ev);
+        if (mouseevent->buttons()&Qt::LeftButton)
+            show_info();
         //setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
     }
     return false;
@@ -344,6 +350,7 @@ void login::_sign_in()
                 if (_userid == _id)
                 {
                     //qDebug()<< "该昵称已被注册！！"<<_userid;
+                    QMessageBox::information(NULL,tr("提醒"),tr("该昵称已经存在！！！"),QMessageBox::Yes);
                     return;
                 }
             }
@@ -360,7 +367,9 @@ void login::_sign_in()
             query.addBindValue(0);
             query.addBindValue(0);
             if (!query.exec())
-                qDebug()<< "注册失败";
+                QMessageBox::information(NULL,tr("提醒"),tr("注册失败！！！"),QMessageBox::Yes);
+            else
+                QMessageBox::information(NULL,tr("提醒"),tr("注册成功！！！"),QMessageBox::Yes);
             query.finish();
         }
     }
@@ -400,8 +409,19 @@ void login::on_userID_textChanged(const QString &arg1)
             return;
         }
         else
+        {
+            ui->rememberPassword->setChecked(true);
             ui->Password->setText(pd);
+        }
     }
     else
+    {
         ui->Password->clear();
+        ui->rememberPassword->setChecked(false);
+    }
+}
+
+QString login::getuserid()
+{
+    return userID;
 }
