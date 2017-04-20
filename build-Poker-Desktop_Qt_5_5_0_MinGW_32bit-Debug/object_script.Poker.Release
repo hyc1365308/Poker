@@ -1,12 +1,13 @@
 INPUT(
 ./release\main.o
-./release\mainwindow.o
 ./release\login.o
 ./release\roomlist.o
+./release\room.o
+./release\player.o
 ./release\qrc_background.o
 ./release\qrc_icon.o
 ./release\qrc_allpoker.o
-./release\moc_mainwindow.o
 ./release\moc_login.o
 ./release\moc_roomlist.o
+./release\moc_room.o
 );

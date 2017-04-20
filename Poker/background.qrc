@@ -19,5 +19,8 @@
         <file>../source/picture/background/button3_clicked.jpg</file>
         <file>../source/picture/background/button4_clicked.jpg</file>
         <file>../source/picture/background/button5_clicked.jpg</file>
+        <file>../source/picture/background/room.jpg</file>
+        <file>../source/picture/background/poker1back.jpg</file>
+        <file>../source/picture/background/poker2back.jpg</file>
     </qresource>
 </RCC>

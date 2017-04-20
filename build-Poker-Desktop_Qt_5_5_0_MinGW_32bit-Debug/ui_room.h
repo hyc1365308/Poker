@@ -15,23 +15,58 @@
 #include <QtWidgets/QButtonGroup>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QHeaderView>
-#include <QtWidgets/QPushButton>
+#include <QtWidgets/QLabel>
+#include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
 
 class Ui_room
 {
 public:
-    QPushButton *pushButton;
+    QWidget *card_1;
+    QWidget *card_2;
+    QWidget *card_3;
+    QWidget *card_4;
+    QWidget *card_5;
+    QLabel *timelabel;
 
     void setupUi(QDialog *room)
     {
         if (room->objectName().isEmpty())
             room->setObjectName(QStringLiteral("room"));
-        room->resize(800, 600);
-        pushButton = new QPushButton(room);
-        pushButton->setObjectName(QStringLiteral("pushButton"));
-        pushButton->setGeometry(QRect(260, 180, 75, 23));
+        room->resize(1200, 700);
+        QIcon icon;
+        icon.addFile(QStringLiteral(":/source/picture/icon/room_icon.jpg"), QSize(), QIcon::Normal, QIcon::Off);
+        room->setWindowIcon(icon);
+        room->setStyleSheet(QStringLiteral("border-image: url(:/source/picture/background/room.jpg);"));
+        card_1 = new QWidget(room);
+        card_1->setObjectName(QStringLiteral("card_1"));
+        card_1->setGeometry(QRect(350, 310, 80, 120));
+        card_1->setStyleSheet(QStringLiteral("border-image: url();"));
+        card_2 = new QWidget(room);
+        card_2->setObjectName(QStringLiteral("card_2"));
+        card_2->setGeometry(QRect(460, 310, 80, 120));
+        card_2->setStyleSheet(QStringLiteral("border-image: url();"));
+        card_3 = new QWidget(room);
+        card_3->setObjectName(QStringLiteral("card_3"));
+        card_3->setGeometry(QRect(570, 310, 80, 120));
+        card_3->setStyleSheet(QStringLiteral("border-image: url();"));
+        card_4 = new QWidget(room);
+        card_4->setObjectName(QStringLiteral("card_4"));
+        card_4->setGeometry(QRect(680, 310, 80, 120));
+        card_4->setStyleSheet(QStringLiteral("border-image: url();"));
+        card_5 = new QWidget(room);
+        card_5->setObjectName(QStringLiteral("card_5"));
+        card_5->setGeometry(QRect(790, 310, 80, 120));
+        card_5->setStyleSheet(QStringLiteral("border-image: url();"));
+        timelabel = new QLabel(room);
+        timelabel->setObjectName(QStringLiteral("timelabel"));
+        timelabel->setGeometry(QRect(190, 40, 130, 40));
+        QFont font;
+        font.setPointSize(20);
+        timelabel->setFont(font);
+        timelabel->setStyleSheet(QLatin1String("border-image: url();\n"
+"color: rgb(255, 255, 255);"));
 
         retranslateUi(room);
 
@@ -41,7 +76,7 @@ public:
     void retranslateUi(QDialog *room)
     {
         room->setWindowTitle(QApplication::translate("room", "Dialog", 0));
-        pushButton->setText(QApplication::translate("room", "PushButton", 0));
+        timelabel->setText(QApplication::translate("room", "22:22:22", 0));
     } // retranslateUi
 
 };

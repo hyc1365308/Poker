@@ -13,17 +13,21 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
     login.cpp \
-    roomlist.cpp
+    roomlist.cpp \
+    room.cpp \
+    player.cpp
 
-HEADERS  += mainwindow.h \
+HEADERS  += \
     login.h \
-    roomlist.h
+    roomlist.h \
+    room.h \
+    player.h
 
-FORMS    += mainwindow.ui \
+FORMS    += \
     login.ui \
-    roomlist.ui
+    roomlist.ui \
+    room.ui
 
 RESOURCES += \
     background.qrc \
@@ -31,3 +35,5 @@ RESOURCES += \
     allpoker.qrc
 
 DISTFILES +=
+
+CONFIG += c++11

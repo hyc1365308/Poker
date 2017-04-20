@@ -3,9 +3,9 @@
 #include "QMessageBox.h"
 #include <QEvent>
 
-roomlist::roomlist(QString _userid,QWidget *parent) :
-    userID(_userid),QDialog(parent),roomname{"倔强青铜","秩序白银","荣耀黄金","尊贵铂金","永恒钻石"},
-    roomstate {{3,4,6},{2,6},{7},{0},{0}},pagenumber(2),
+roomlist::roomlist(QString _userid,QString _formalid,QWidget *parent) :
+    userID(_userid),formalID(_formalid),QDialog(parent),
+    roomstate {{0},{0},{0},{0},{0}},pagenumber(2),
     ui(new Ui::roomlist)
 {
     ui->setupUi(this);
@@ -169,7 +169,7 @@ void roomlist::on_roomlist1_clicked()
         recover();
         roomlevel = 1;
         for (int i = 0; i < 5; i++){
-            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
             _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
         }
         //ui->room_list->show();
@@ -187,7 +187,7 @@ void roomlist::on_roomlist2_clicked()
         roomlevel = 2;
         for (int i = 0; i < 5; i++)
         {
-            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
             _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
         }
     }
@@ -204,7 +204,7 @@ void roomlist::on_roomlist3_clicked()
         roomlevel = 3;
         for (int i = 0; i < 5; i++)
         {
-            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
             _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
         }
     }
@@ -221,7 +221,7 @@ void roomlist::on_roomlist4_clicked()
         roomlevel = 4;
         for (int i = 0; i < 5; i++)
         {
-            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
             _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
         }
     }
@@ -238,7 +238,7 @@ void roomlist::on_roomlist5_clicked()
         roomlevel = 5;
         for (int i = 0; i < 5; i++)
         {
-            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+            _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
             _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
         }
     }
@@ -303,10 +303,11 @@ void roomlist::enterroom5()
 void roomlist::enterroom(int i)
 {
     qDebug()<<"enter room "<<roomname[roomlevel-1]<<i;
+    roomnumber = i;
     accept();
 }
 
-void roomlist::_decrease()
+void roomlist::on_pageup_clicked()
 {
     if (current_page <= 0)
         return;
@@ -314,12 +315,12 @@ void roomlist::_decrease()
     ui->_currentpage->setText("第"+QString::number(current_page+1,10)+"页");
     for (int i = 0; i < 5; i++)
     {
-        _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+        _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
         _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
     }
 }
 
-void roomlist::_increase()
+void roomlist::on_pagedown_clicked()
 {
     if (current_page >= pagenumber-1)
         return;
@@ -327,17 +328,27 @@ void roomlist::_increase()
     ui->_currentpage->setText("第"+QString::number(current_page+1,10)+"页");
     for (int i = 0; i < 5; i++)
     {
-        _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/8");
+        _roomstate[i]->setText(QString::number(roomstate[roomlevel-1][i+5*current_page],10) + "/9");
         _roomname[i]->setText(roomname[roomlevel-1] + QString::number(i+1+5*current_page,10));
     }
 }
 
-void roomlist::on_pageup_clicked()
+QString roomlist::getID()
 {
-    _decrease();
+    return userID;
 }
 
-void roomlist::on_pagedown_clicked()
+int roomlist::getroomlevel()
 {
-    _increase();
+    return roomlevel;
+}
+
+int roomlist::getroomnumber()
+{
+    return roomnumber;
+}
+
+QString roomlist::getformalID()
+{
+    return formalID;
 }

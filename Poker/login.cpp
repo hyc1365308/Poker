@@ -164,13 +164,14 @@ void login::on_loginButton_clicked()
     {
         qDebug("数据库打开成功！！！");
         QSqlQuery query;
-        if(!query.exec("SELECT userid,userpd FROM usersdata")){
+        if(!query.exec("SELECT userid,userpd,formalid FROM usersdata")){
             qDebug()<< query.lastError().text();
         }
         while(query.next())
         {
             userid = query.value(0).toString();
             userpd = query.value(1).toString();
+            formalID = query.value(2).toString();
             if (userid == _ID)
             {
                 //qDebug()<< userid<<" "<<userpd;
@@ -424,4 +425,9 @@ void login::on_userID_textChanged(const QString &arg1)
 QString login::getuserid()
 {
     return userID;
+}
+
+QString login::getformalid()
+{
+    return formalID;
 }

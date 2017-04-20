@@ -1,12 +1,13 @@
 INPUT(
 ./debug\main.o
-./debug\mainwindow.o
 ./debug\login.o
 ./debug\roomlist.o
+./debug\room.o
+./debug\player.o
 ./debug\qrc_background.o
 ./debug\qrc_icon.o
 ./debug\qrc_allpoker.o
-./debug\moc_mainwindow.o
 ./debug\moc_login.o
 ./debug\moc_roomlist.o
+./debug\moc_room.o
 );

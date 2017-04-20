@@ -32,6 +32,7 @@ private slots:
 
 public:
     QString getuserid();
+    QString getformalid();
 
 public slots:
     void _sign_in();
@@ -49,6 +50,7 @@ private:
     QPushButton *confirm;//用户注册框确认按钮
     QPushButton *cancel;//用户注册框重新输入按钮
     QString userID;
+    QString formalID;
     bool rememberPd;
     bool autoLogin;
 };
