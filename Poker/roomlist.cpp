@@ -1,10 +1,8 @@
 #include "roomlist.h"
 #include "ui_roomlist.h"
-#include "QMessageBox.h"
-#include <QEvent>
 
-roomlist::roomlist(QString _userid,QString _formalid,QWidget *parent) :
-    userID(_userid),formalID(_formalid),QDialog(parent),
+roomlist::roomlist(QString _userid,QWidget *parent) :
+    userId(_userid),QDialog(parent),
     roomstate {{0},{0},{0},{0},{0}},pagenumber(2),
     ui(new Ui::roomlist)
 {
@@ -17,16 +15,13 @@ roomlist::roomlist(QString _userid,QString _formalid,QWidget *parent) :
     personinfoDialog = new QDialog(this);
     settingDialog = new QDialog(this);
     rankDialog = new QDialog(this);
-
-    ui->userid->setText(userID);
-    ui->usergold->setText(QString::number(getusergold(), 10));
+    init();
+    ui->userid->setText(userName);
+    ui->usergold->setText(QString::number(money, 10));
     roomlevel = 0;
     current_page = 0;
     //从服务器获取roomstate???
 
-
-    QString backgroundpath = ":/source/picture/background/button";
-    QString buttonname[5][2] = {{"1.jpg","1_clicked.jpg"},{"2.jpg","2_clicked.jpg"},{"3.jpg","3_clicked.jpg"},{"4.jpg","4_clicked.jpg"},{"5.jpg","5_clicked.jpg"}};
     for (int i = 0; i < 5; i++)
         for (int j = 0; j < 2; j++)
             roombutton[i][j] = backgroundpath + buttonname[i][j];
@@ -244,10 +239,11 @@ void roomlist::on_roomlist5_clicked()
     }
 }
 
-int roomlist::getusergold()
+
+void roomlist::init()
 {
-    //之后应该改为对服务器的请求
-    return 200000;
+    money = 2000000;
+    userName = "zys";
 }
 
 void roomlist::recover()
@@ -333,9 +329,9 @@ void roomlist::on_pagedown_clicked()
     }
 }
 
-QString roomlist::getID()
+QString roomlist::getuserId()
 {
-    return userID;
+    return userId;
 }
 
 int roomlist::getroomlevel()
@@ -348,7 +344,3 @@ int roomlist::getroomnumber()
     return roomnumber;
 }
 
-QString roomlist::getformalID()
-{
-    return formalID;
-}

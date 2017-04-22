@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
     while(_login.exec() == QDialog::Accepted)
     {
 
-        roomlist _roomlist(_login.getuserid(),_login.getformalid());
+        roomlist _roomlist(_login.getuserid());//游戏大厅界面
         _roomlist.setFixedSize(1200,700);
         while(_roomlist.exec() == QDialog::Accepted)
         {
-            room r(_roomlist.getID(),_roomlist.getformalID(),_roomlist.getroomlevel(),_roomlist.getroomnumber());
+            room r(_roomlist.getuserId(),_roomlist.getroomlevel(),_roomlist.getroomnumber());//游戏房间界面
             r.setFixedSize(1200,700);
             r.gamestart();
             if(r.exec() == QDialog::Accepted)

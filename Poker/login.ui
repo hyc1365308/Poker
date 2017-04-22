@@ -47,7 +47,7 @@
     <rect>
      <x>217</x>
      <y>88</y>
-     <width>165</width>
+     <width>168</width>
      <height>40</height>
     </rect>
    </property>
@@ -64,7 +64,7 @@
     </font>
    </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/source/picture/background/inputLine.jpg);</string>
+    <string notr="true">border-image: url(:/source/picture/background/singalroom.jpg);</string>
    </property>
    <property name="echoMode">
     <enum>QLineEdit::Password</enum>
@@ -78,7 +78,7 @@
     <rect>
      <x>217</x>
      <y>40</y>
-     <width>165</width>
+     <width>168</width>
      <height>40</height>
     </rect>
    </property>
@@ -90,8 +90,11 @@
      <bold>true</bold>
     </font>
    </property>
+   <property name="autoFillBackground">
+    <bool>false</bool>
+   </property>
    <property name="styleSheet">
-    <string notr="true">border-image: url(:/source/picture/background/inputLine.jpg);</string>
+    <string notr="true">border-image: url(:/source/picture/background/singalroom.jpg);</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="autoLogin">

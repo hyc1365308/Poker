@@ -1,18 +1,18 @@
 #include "player.h"
 
-player::player(QString _formalID,QString _userID):formalID(_formalID),userID(_userID)
+player::player(QString _userName,QString _userId):userName(_userName),userId(_userId)
 {
 
 }
 
-QString player::getuserID()
+QString player::getuserId()
 {
-    return userID;
+    return userId;
 }
 
-QString player::getformalID()
+QString player::getuserName()
 {
-    return formalID;
+    return userName;
 }
 
 void player::setmoney(int _money)

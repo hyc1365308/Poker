@@ -1,30 +1,61 @@
 #include "login.h"
 #include "ui_login.h"
-#include <QString>
-#include <QDialog>
-#include <QEvent>
-#include <QtGui>
-#include <QKeyEvent>
-#include "QMessageBox.h"
-#include <QDebug>
-#include <QGridLayout>
 
 login::login(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::login)
 {
     ui->setupUi(this);
-    rememberPd = false;
-    autoLogin = false;
+    //自动登录部分还未实现，感觉也没什么意义，就这样吧
+    //就让它空占个选择框以保持对称性吧
+    ui->autoLogin->setEnabled(false);
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("remember.db");
+    if (!db.open())
+    {
+        qDebug("数据库打开失败！！！");
+    }
+    else
+    {
+        qDebug("数据库打开成功！！！");
+        QSqlQuery query;
+        if(!query.exec("SELECT usertel_em,userpd,userauto FROM rememberdata")){
+            qDebug()<< query.lastError().text();
+        }
+        while(query.next())
+        {
+            QString usertel_em = query.value(0).toString();
+            QString userpd = query.value(1).toString();
+            int userauto = query.value(2).toInt();
+            record.append(usertel_em);
+            record_pd.append(userpd);
+            qDebug ()<<usertel_em<<" userauto "<<userauto;
+            if (userauto == 1)
+                autologin.append(usertel_em);
+        }
+        query.finish();
+        db.close();
+    }
+
+//    for (int i = 0; i< record.size(); i++)
+//        qDebug()<<record.at(i)<<" + "<<record_pd.at(i);
+
     setWindowFlags(Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
     //规定密码只能为英文大小写字母和数字
     QRegExp regExp("[A-Za-z0-9]+");
     ui->Password->setValidator(new QRegExpValidator(regExp,this));
 
-    //用户id只能是数字，英文大小写字母，英文下划线，汉字
-    QRegExp regExp2("^[a-zA-Z0-9_\u4e00-\u9fa5\\w]+$");
-    ui->userID->setValidator(new QRegExpValidator(regExp2,this));
+    ui->userID->setPlaceholderText("邮箱/手机");
 
+    //用户昵称只能是数字，英文大小写字母，英文下划线，汉字
+    QRegExp _regExp2("^[a-zA-Z0-9_\u4e00-\u9fa5\\w]+$");
+    //ui->userID->setValidator(new QRegExpValidator(regExp2,this));
+
+    //用户手机号为11位数字
+    QRegExp regExp3("\\d{11}$");
+    QRegExp regExp2("\\d{11}|([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
+    ui->userID->setValidator(new QRegExpValidator(regExp2,this));
 
     infoDialog = new QDialog(this);
     infoDialog->setWindowTitle("关于我们");
@@ -43,7 +74,6 @@ login::login(QWidget *parent) :
     stuff->setAlignment(Qt::AlignCenter);
     stuff->setFont(QFont( "Timers",12,QFont::Bold));
     stuff->setStyleSheet("color:red");//文本颜色
-    const QString all_stuff[4][3] = {{"姓名","学号","手机"},{"冯瑜林","2014011365","13141317514"},{"黄越钦","2014011324","13121415804"},{"邹岩松","2014011296","17888834764"}};
     QGridLayout *gridLayout = new QGridLayout;
     gridLayout->setSpacing(2);
     gridLayout->setMargin(2);
@@ -74,8 +104,8 @@ login::login(QWidget *parent) :
     palette1.setBrush(QPalette::Window, QBrush(pixmap1));
     signDialog->setPalette(palette1);
 
-    signDialog->resize(300,180);
-    //const QString left_label[] = {"用户昵称","输入密码","确认密码","联系邮箱"};
+    signDialog->resize(300,250);
+    //const QString left_label[] = {"用户昵称","输入密码","确认密码","登录邮箱","手机号码"};
 
     QGridLayout *gridLayout1 = new QGridLayout;
     gridLayout1->setSpacing(10);
@@ -88,13 +118,13 @@ login::login(QWidget *parent) :
     gridLayout1->addWidget(title,0,0,1,2);
 
     QLabel *label_ID = new QLabel("用户昵称");
-    ID = new QLineEdit;
+    NM = new QLineEdit;
     label_ID->setAlignment(Qt::AlignCenter);
-    ID->setPlaceholderText("数字/英文大小写字母/英文下划线/汉字");
-    ID->setValidator(new QRegExpValidator(regExp2,this));
-    ID->setFocus();
+    NM->setPlaceholderText("数字/英文大小写字母/英文下划线/汉字");
+    NM->setValidator(new QRegExpValidator(_regExp2,this));
+    NM->setFocus();
     gridLayout1->addWidget(label_ID,1,0);
-    gridLayout1->addWidget(ID,1,1);
+    gridLayout1->addWidget(NM,1,1);
 
     QLabel *label_PW = new QLabel("输入密码");
     PW = new QLineEdit;
@@ -114,12 +144,33 @@ login::login(QWidget *parent) :
     gridLayout1->addWidget(label_PW_,3,0);
     gridLayout1->addWidget(PW_,3,1);
 
-    QLabel *label_EM = new QLabel("联系邮箱");
+    QLabel *label_EM = new QLabel("登录邮箱");
     EM = new QLineEdit;
     label_EM->setAlignment(Qt::AlignCenter);
     EM->setPlaceholderText("正确邮箱格式");
     gridLayout1->addWidget(label_EM,4,0);
     gridLayout1->addWidget(EM,4,1);
+
+    QLabel *label_TEL = new QLabel("手机号码");
+    TEL = new QLineEdit;
+    label_TEL->setAlignment(Qt::AlignCenter);
+    TEL->setPlaceholderText("手机号码(11位)");
+    TEL->setValidator(new QRegExpValidator(regExp3,this));
+    gridLayout1->addWidget(label_TEL,5,0);
+    gridLayout1->addWidget(TEL,5,1);
+
+    QLabel *label_PHO = new QLabel("选择头像");
+    PHO = new QComboBox;
+    label_PHO->setAlignment(Qt::AlignCenter);
+    PHO->addItem(QWidget::tr("默认汉纸头像"));
+    PHO->addItem(QWidget::tr("默认妹纸头像"));
+    PHO->addItem(QWidget::tr("自己选择头像/"));
+    connect(PHO, SIGNAL(activated(int)), this, SLOT(changePhoto(int)));
+
+
+    //PHO->setStyleSheet("border-image: url(:/source/picture/background/blue.jpg);");;
+    gridLayout1->addWidget(label_PHO,6,0);
+    gridLayout1->addWidget(PHO,6,1);
 
     confirm = new QPushButton("确认注册");
     connect(confirm,SIGNAL(clicked()),this,SLOT(_sign_in()));
@@ -130,7 +181,7 @@ login::login(QWidget *parent) :
     _button->addWidget(confirm);
     _button->addWidget(cancel);
 
-    gridLayout1->addLayout(_button,5,0,1,2);
+    gridLayout1->addLayout(_button,7,0,1,2);
 
     signDialog->setLayout(gridLayout1);
 
@@ -146,13 +197,26 @@ login::~login()
 
 void login::on_loginButton_clicked()
 {
-    //对于用户名或者密码可以考虑怎么样从数据库获取
+    //对于手机/邮箱，或者密码可以考虑怎么样从数据库获取
     QString _ID = this->ui->userID->text().trimmed();
+    //输入的_ID可以为手机号或者邮箱
     QString PASSWORD = this->ui->Password->text().trimmed();
     //qDebug()<<_ID<<" "<<PASSWORD;
 
+    QRegExp regExp("([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
+    QRegExp _regExp("\\d{11}$");
+
+    int kind = 0;//1表示手机号登录，2表示邮箱登录
+    if (_regExp.exactMatch(_ID))
+        kind = 1;
+    else if (regExp.exactMatch(_ID))
+        kind = 2;
+
+
     QString userid = "@@@";
     QString userpd = "@@@";
+    QString userem = "@@@";
+    QString usertel = "@@@";
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("database.db");
@@ -164,15 +228,17 @@ void login::on_loginButton_clicked()
     {
         qDebug("数据库打开成功！！！");
         QSqlQuery query;
-        if(!query.exec("SELECT userid,userpd,formalid FROM usersdata")){
+        if(!query.exec("SELECT userid,userpd,userem,usertel FROM usersdata")){
             qDebug()<< query.lastError().text();
         }
         while(query.next())
         {
             userid = query.value(0).toString();
             userpd = query.value(1).toString();
-            formalID = query.value(2).toString();
-            if (userid == _ID)
+            //userName = query.value(3).toString();
+            userem = query.value(2).toString();
+            usertel = query.value(3).toString();
+            if (((userem == _ID)&&(kind == 2)) || ((usertel == _ID )&&(kind == 1)))
             {
                 //qDebug()<< userid<<" "<<userpd;
                 break;
@@ -186,12 +252,12 @@ void login::on_loginButton_clicked()
 
     if (_ID == "")
     {
-        QMessageBox::warning(NULL,tr("警告"),tr("请先输入用户名和密码!!!"),QMessageBox::Yes);
+        QMessageBox::warning(NULL,tr("警告"),tr("请先输入邮箱或手机号码!!!"),QMessageBox::Yes);
     }
 
     else if (userid == "@@@")
     {
-        QMessageBox::warning(NULL,tr("警告"),tr("该用户名不存在，请先注册!!!"),QMessageBox::Yes);
+        QMessageBox::warning(NULL,tr("警告"),tr("该邮箱或手机号码不存在，请先注册!!!"),QMessageBox::Yes);
     }
 
     else if (PASSWORD != userpd)
@@ -200,20 +266,107 @@ void login::on_loginButton_clicked()
     }
     else
     {
-        if (rememberPd){
-            QSettings scfg("config.ini",QSettings::IniFormat);
-            scfg.setValue("USERID",userid);
-            scfg.setValue("USERPD",userpd);
-            scfg.sync();
-            rememberPd = false;
+
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName("remember.db");
+        if (!db.open())
+        {
+            qDebug("数据库打开失败！！！");
         }
-        if (autoLogin){
-            QSettings scfg("config.ini",QSettings::IniFormat);
-            scfg.setValue("AUTOLOGIN",1);
-            scfg.sync();
-            autoLogin = false;
+        qDebug("数据库打开成功！！！");
+        QSqlQuery query;
+        if (!query.exec("CREATE TABLE IF NOT EXISTS rememberdata("
+                                   "usertel_em VARCHAR,"
+                                   "userpd VARCHAR,"
+                                   "userauto INT)")){
+            qDebug()<< query.lastError().text()<<"\n";
         }
-        userID = userid;
+        int removeloc = -1;
+        bool temp = ui->rememberPassword->checkState();
+        bool temp2 = ui->autoLogin->checkState();
+
+        if (temp){
+                for (int i = 0; i < record.size(); i++)
+                {
+                    QString _id = static_cast<QString>(record.at(i));
+                    if (_id == _ID)
+                    {
+                        temp = false;
+                        removeloc = i;
+                        break;
+                    }
+
+                    //qDebug()<<removeloc;
+                }
+                if (temp)
+                {
+                        query.prepare("INSERT INTO rememberdata(usertel_em,userpd,userauto) VALUES(?,?,?)");
+                        query.addBindValue(_ID);
+                        query.addBindValue(userpd);
+                        query.addBindValue(0);
+                        record.append(_ID);
+                        record_pd.append(userpd);
+                        if (!query.exec())
+                            qDebug()<<"记住密码失败！！！";
+
+                        query.finish();
+                }
+                if (temp2)
+                {
+                    //qDebug()<<"_ID"<<_ID;
+                    for (int i = 0; i < autologin.size(); i++)
+                    {
+                        QString _id = static_cast<QString>(autologin.at(i));
+                        if (_id == _ID)
+                        {
+                            temp2 = false;
+                            break;
+                        }
+                    }
+                    if (temp2){
+//                            query.prepare("UPDATE rememberdata SET userauto = 1 WHERE usertel_em = _ID");
+
+//                            if(!query.exec())
+//                            {
+//                                qDebug()<<query.lastError();
+//                            }
+//                            else
+//                            {
+//                                qDebug()<<"_ID"<<_ID;
+//                            }
+//                            query.finish();
+                        }
+                }
+
+        }
+        else
+        {
+            for (int i = 0; i < record.size(); i++)
+            {
+                QString _id = static_cast<QString>(record.at(i));
+                if (_id == _ID)
+                {
+                    removeloc = i;
+                    break;
+                }
+            }
+            //qDebug()<<removeloc;
+                query.prepare("DELETE FROM rememberdata WHERE usertel_em = ?");
+                query.addBindValue(_ID);
+                if(!query.exec())
+                {
+                    qDebug()<<query.lastError();
+                }
+                if (removeloc >= 0){
+                    //qDebug()<<record.at(removeloc);
+                    record.removeAt(removeloc);
+                    record_pd.removeAt(removeloc);
+                    //autologin.removeAt(removeloc);
+                }
+                query.finish();
+        }
+        db.close();
+        userId = userid;
         accept();
         return;
     }
@@ -240,6 +393,7 @@ bool login::eventFilter(QObject *obj, QEvent *ev)
             show_info();
         //setWindowFlags(Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint);
     }
+
     return false;
 }
 
@@ -250,17 +404,19 @@ void login::show_info()
 
 void login::sign_in()
 {
-    ID->clear();
+    NM->clear();
     PW->clear();
     PW_->clear();
     EM->clear();
+    TEL->clear();
     signDialog->show();
 }
 
 void login::_sign_in()
 {
     QRegExp regExp("([0-9A-Za-z\\-_\\.]+)@([0-9a-z]+\\.[a-z]{2,3}(\\.[a-z]{2})?)");
-    if(ID->text()=="")
+    QRegExp _regExp("\\d{11}$");
+    if(NM->text()=="")
         QMessageBox::warning(NULL,tr("警告"),tr("请输入昵称！"),QMessageBox::Yes);
     else if(PW->text()=="")
         QMessageBox::warning(NULL,tr("警告"),tr("请输入密码！"),QMessageBox::Yes);
@@ -274,6 +430,10 @@ void login::_sign_in()
     {
         QMessageBox::warning(NULL,tr("警告"),tr("邮箱格式不正确！"),QMessageBox::Yes);
     }
+    else if(!_regExp.exactMatch(TEL->text()))
+    {
+        QMessageBox::warning(NULL,tr("警告"),tr("手机号码不正确！"),QMessageBox::Yes);
+    }
     else
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -286,148 +446,197 @@ void login::_sign_in()
         {
             qDebug("数据库打开成功！！！");
             QSqlQuery query;
+//            QString imagePath = "D:/poker/source/picture/icon/beauty.jpg";
+
+//            QFile* file=new QFile(imagePath); //file为二进制数据文件名
+
+//            QByteArray data;
+//            file->open(QIODevice::ReadOnly);
+
+//            data = file->readAll();
+
+//            file->close();
+//            QVariant var(data);
+
+            //qDebug()<<sizeof(data)<<" "<<sizeof(var);
 
             //以下注释部分为数据库的初始化和测试部分
             //数据库表单名为usersdata
-            //包括formalid,userid,userpd,userem,usergold,userwin,userlose
-            //分别为传输id，用户昵称,用户密码,用户邮箱,用户金币,用户胜场，用户负场
-            /*if (!query.exec("CREATE TABLE usersdata("
-                           "formalid VARCHAR,"
-                           "userid VARCHAR,"
-                           "userpd VARCHAR,"
-                           "userem VARCHAR,"
-                           "usergold INT,"
-                           "userwin INT,"
-                           "userlose INT)")){
-                qDebug()<< query.lastError().text()<<"\n";
-            }
-            query.prepare("INSERT INTO usersdata(formalid,userid,userpd,userem,usergold,userwin,userlose) VALUES(?,?,?,?,?,?,?)");
-            QVariantList formalids;
-            formalids<< "user1" << "user2" << "user3";
-            query.addBindValue(formalids);
+            //包括userid,username,userpd,userem,usergold,userwin,userlose
+            //分别为传输id，用户昵称,用户密码,用户邮箱,用户手机号,用户头像,用户金币,用户胜场，用户负场
+//            if (!query.exec("CREATE TABLE usersdata("
+//                           "userid VARCHAR,"
+//                           "username VARCHAR,"
+//                           "userpd VARCHAR,"
+//                           "userem VARCHAR,"
+//                           "usertel VARCHAR,"
+//                           "userphoto LONGBLOB,"
+//                           "usergold INT,"
+//                           "userwin INT,"
+//                           "userlose INT)")){
+//                qDebug()<< query.lastError().text()<<"\n";
+//            }
+//            query.prepare("INSERT INTO usersdata(userid,username,userpd,userem,usertel,userphoto,usergold,userwin,userlose) VALUES(?,?,?,?,?,?,?,?,?)");
+//            QVariantList userids;
+//            userids<< "user1" << "user2" << "user3";
+//            query.addBindValue(userids);
 
-            QVariantList userids;
-            userids<< "zys" << "fyl" << "hyq";
-            query.addBindValue(userids);
+//            QVariantList usernames;
+//            usernames<< "zys" << "fyl" << "hyq";
+//            query.addBindValue(usernames);
 
-            QVariantList userpds;
-            userpds<< "2014011296" << "2014011365" << "2014011324";
-            query.addBindValue(userpds);
+//            QVariantList userpds;
+//            userpds<< "2014011296" << "2014011365" << "2014011324";
+//            query.addBindValue(userpds);
 
-            QVariantList userems;
-            userems<< "1450214244@qq.com" << "thucoldwind@gmail.com" << "hyc1365308@sina.com";
-            query.addBindValue(userems);
+//            QVariantList userems;
+//            userems<< "1450214244@qq.com" << "thucoldwind@gmail.com" << "hyc1365308@sina.com";
+//            query.addBindValue(userems);
 
-            QVariantList usergolds;
-            usergolds<< 100000 << 100000 << 100000;
-            query.addBindValue(usergolds);
+//            QVariantList usertels;
+//            usertels<< "17888834764" << "13141317514" << "13121415804";
+//            query.addBindValue(usertels);
 
-            QVariantList userwins;
-            userwins<< 0 << 0 << 0;
-            query.addBindValue(userwins);
+//            QVariantList userphotos;
+//            userphotos<< var << var << var;
+//            query.addBindValue(userphotos);
 
-            QVariantList userloses;
-            userloses<< 0 << 0 << 0;
-            query.addBindValue(userloses);
-            if (!query.execBatch())
-            {
-                qDebug()<< query.lastError().text()<<"\n";
-            }*/
+//            QVariantList usergolds;
+//            usergolds<< 10000000 << 10000000 << 10000000;
+//            query.addBindValue(usergolds);
+
+//            QVariantList userwins;
+//            userwins<< 0 << 0 << 0;
+//            query.addBindValue(userwins);
+
+//            QVariantList userloses;
+//            userloses<< 0 << 0 << 0;
+//            query.addBindValue(userloses);
+//            if (!query.execBatch())
+//            {
+//                qDebug()<< query.lastError().text()<<"\n";
+//            }
 
             //进行插入数据库操作
-            QString _id = ID->text().trimmed();
+            QString _nm = NM->text().trimmed();
             QString _pw = PW->text().trimmed();
             QString _em = EM->text().trimmed();
-            if(query.exec("SELECT formalid,userid FROM usersdata")){
+            QString _tel = TEL->text().trimmed();
+            if(query.exec("SELECT userid,userem,usertel FROM usersdata")){
                 qDebug()<< query.lastError().text()<<"\n";
             }
-            QString _formalid;
             QString _userid;
+            QString _userem;
+            QString _usertel;
             while(query.next())
             {
-                _formalid = query.value(0).toString();
-                _userid = query.value(1).toString();
+                _userid = query.value(0).toString();
+                _userem = query.value(1).toString();
+                _usertel = query.value(2).toString();
                 //qDebug()<< _userid<<" "<<_formalid;
-                if (_userid == _id)
+                if (_userem == _em)
                 {
-                    //qDebug()<< "该昵称已被注册！！"<<_userid;
-                    QMessageBox::information(NULL,tr("提醒"),tr("该昵称已经存在！！！"),QMessageBox::Yes);
+                    //qDebug()<< "该邮箱已被注册！！"<<_userid;
+                    QMessageBox::information(NULL,tr("提醒"),tr("该邮箱已被注册！！！"),QMessageBox::Yes);
+                    return;
+                }
+                if(_usertel == _tel)
+                {
+                    QMessageBox::information(NULL,tr("提醒"),tr("该手机号码已被注册！！！"),QMessageBox::Yes);
                     return;
                 }
             }
-            query.prepare("INSERT INTO usersdata(formalid,userid,userpd,userem,usergold,userwin,userlose) VALUES(?,?,?,?,?,?,?)");
-            QString last = _formalid.mid(4);
+
+            query.prepare("INSERT INTO usersdata(userid,username,userpd,userem,usertel,userphoto,usergold,userwin,userlose) VALUES(?,?,?,?,?,?,?,?,?)");
+            QString last = _userid.mid(4);
             int num = last.toInt()+1;
-            QString _formalid_ = "user"+QString::number(num,10);
+            QString _userid_ = "user"+QString::number(num,10);
+            QString _imagePath = PHO->currentText().mid(7);
+            QByteArray _data;
+            QFile* _file=new QFile(_imagePath); //file为二进制数据文件名
+            _file->open(QIODevice::ReadOnly);
+            _data = _file->readAll();
+            _file->close();
+            QVariant _var(_data);
             //qDebug()<<_formalid_;
-            query.addBindValue(_formalid_);
-            query.addBindValue(_id);
+            query.addBindValue(_userid_);
+            query.addBindValue(_nm);
             query.addBindValue(_pw);
             query.addBindValue(_em);
+            query.addBindValue(_tel);
+            query.addBindValue(_var);
             query.addBindValue(50000);
             query.addBindValue(0);
             query.addBindValue(0);
             if (!query.exec())
-                QMessageBox::information(NULL,tr("提醒"),tr("注册失败！！！"),QMessageBox::Yes);
+                QMessageBox::information(NULL,tr("提醒"),tr("对不起,您注册失败！！！"),QMessageBox::Yes);
             else
-                QMessageBox::information(NULL,tr("提醒"),tr("注册成功！！！"),QMessageBox::Yes);
+                QMessageBox::information(NULL,tr("提醒"),tr("恭喜,您已注册成功！！！"),QMessageBox::Yes);
             query.finish();
+            db.close();
         }
     }
 }
 
 void login::_cancel()
 {
-    ID->clear();
+    NM->clear();
     PW->clear();
     PW_->clear();
     EM->clear();
-}
-
-void login::on_rememberPassword_clicked()
-{
-    if (ui->rememberPassword->isChecked())
-        rememberPd = true;
-}
-
-void login::on_autoLogin_clicked()
-{
-    if (ui->autoLogin->isChecked())
-        autoLogin = true;
+    TEL->clear();
 }
 
 void login::on_userID_textChanged(const QString &arg1)
 {
-    QSettings scfg("config.ini",QSettings::IniFormat);
-    QString id = scfg.value("USERID").toString();
-    if (id == ui->userID->text().trimmed())
+    bool flag = false;
+    for (int i = 0; i < record.size(); i++)
     {
-        QString pd = scfg.value("USERPD").toString();
-        int autologin = scfg.value("AUTOLOGIN").toInt();
-        if (autologin == 1)
+        QString _id = static_cast<QString>(record.at(i));
+        if (_id == ui->userID->text().trimmed())
         {
-            accept();
-            return;
-        }
-        else
-        {
+            QString _pd = static_cast<QString>(record_pd.at(i));
             ui->rememberPassword->setChecked(true);
-            ui->Password->setText(pd);
+            ui->Password->setText(_pd);
+            flag = true;
+            break;
         }
     }
-    else
+    if (!flag)
     {
         ui->Password->clear();
         ui->rememberPassword->setChecked(false);
+    }
+    if (flag)
+    {
+        for (int i = 0; i < autologin.size(); i++)
+        {
+            QString _id = static_cast<QString>(autologin.at(i));
+            if (_id == ui->userID->text().trimmed())
+                accept();
+        }
     }
 }
 
 QString login::getuserid()
 {
-    return userID;
+    return userId;
 }
 
-QString login::getformalid()
+
+void login::changePhoto(int index)
 {
-    return formalID;
+    qDebug()<<"index:"<<index;
+    if (index == 2)
+    {
+        QString g_strCurrentDir;
+        QString strImage = QFileDialog::getOpenFileName(this,"Please Select image file",g_strCurrentDir,"Image Format (*.png *.jpg *.bmp *.gif)");
+        if (strImage.isNull())
+            return;
+        g_strCurrentDir = QDir(strImage).absolutePath();
+        QString preText = PHO->currentText();
+        QString nowText = preText.left(7) + g_strCurrentDir;
+        PHO->setItemText(2,nowText);
+    }
 }
+

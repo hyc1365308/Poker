@@ -4,12 +4,27 @@
 #include <QDialog>
 #include <QLabel>
 #include <QtSql>
-#include <QSettings>
+#include <QString>
+#include <QEvent>
+#include <QtGui>
+#include <QKeyEvent>
+#include "QMessageBox.h"
+#include <QDebug>
+#include <QGridLayout>
+#include <QStringList>
+#include <QDir>
+#include <QFileDialog>
+#include <QComboBox>
+#include <QPixmap>
+#include <QVariantList>
+#include <QVariant>
+#include <QScrollArea>
 
 namespace Ui {
 class login;
 }
 
+const QString all_stuff[4][3] = {{"姓名","学号","手机"},{"冯瑜林","2014011365","13141317514"},{"黄越钦","2014011324","13121415804"},{"邹岩松","2014011296","17888834764"}};
 class login : public QDialog
 {
     Q_OBJECT
@@ -24,15 +39,14 @@ private slots:
     void show_info();
     void sign_in();
 
-    void on_rememberPassword_clicked();
-
-    void on_autoLogin_clicked();
-
     void on_userID_textChanged(const QString &arg1);
 
+    void changePhoto(int index);
+
+
 public:
+    //QString getusername();
     QString getuserid();
-    QString getformalid();
 
 public slots:
     void _sign_in();
@@ -43,16 +57,19 @@ private:
     Ui::login *ui;
     QDialog *infoDialog;
     QDialog *signDialog;
-    QLineEdit *ID;//用户注册框输入ID
+    QLineEdit *NM;//用户注册框输入昵称
     QLineEdit *PW;//用户注册框输入密码
     QLineEdit *PW_;//用户注册框在此输入密码
     QLineEdit *EM;//用户注册框输入email
+    QLineEdit *TEL;//用户注册框输入手机号码
+    QComboBox *PHO;//用户选择图片路径
     QPushButton *confirm;//用户注册框确认按钮
     QPushButton *cancel;//用户注册框重新输入按钮
-    QString userID;
-    QString formalID;
-    bool rememberPd;
-    bool autoLogin;
+    QString userId;
+    //QString userName;
+    QStringList record;//记录的人tel或em
+    QStringList record_pd;//记录的人密码
+    QStringList autologin;//记录自动登录
 };
 
 #endif // LOGIN_H

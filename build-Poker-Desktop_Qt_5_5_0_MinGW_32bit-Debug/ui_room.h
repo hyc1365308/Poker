@@ -76,7 +76,7 @@ public:
     void retranslateUi(QDialog *room)
     {
         room->setWindowTitle(QApplication::translate("room", "Dialog", 0));
-        timelabel->setText(QApplication::translate("room", "22:22:22", 0));
+        timelabel->setText(QString());
     } // retranslateUi
 
 };
