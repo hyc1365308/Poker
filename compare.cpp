@@ -1,134 +1,16 @@
 /*
  * Author   :   Feng Yulin
- * Time     :   2017-04-07(1st)
+ * Time     :   2017-04-07(1st), 2017-05-03(2nd)
  * Function :   Compare two hands
 */
 
-#include <iostream>
-#include <assert.h>
-#include <string.h>
+#include "pattern.h"
 
-using std::cin;
+#include <vector>
+
 using std::cout;
 using std::endl;
-using std::ostream;
-using std::string;
-
-enum Suit
-{
-    HEARTS = 0, 
-    DIAMONDS = 1, 
-    CLUB = 2, 
-    SPADE = 3
-};
-
-enum HandPattern
-{
-    STRAIGHT_FLUSH,
-    FOUR_OF_A_KIND,
-    FULL_HOUSE,
-    FLUSH,
-    STRAIGHT,
-    THREE_OF_A_KIND,
-    TWO_PAIR,
-    ONE_PAIR,
-    HIGH_CARD
-};
-
-struct Card
-{
-    Suit suit;
-    short num;
-    Card() {}
-    Card(int s, int n)
-    {
-        suit = Suit(s);
-        num = n;
-    }
-
-    bool operator< (const Card & right)
-    {
-        if (right.num == 1)
-        {
-            return (num == 1) ? false : true;
-        }
-        else if (num == 1)
-        {
-            return false;
-        }
-
-        return num < right.num;
-    }
-
-    short operator- (const Card & right)
-    {
-        if (num == 1 && right.num != 1)
-        {
-            return num + 13 - right.num;
-        }
-        else if (num != 1 && right.num == 1)
-        {
-            return num - (right.num + 13);
-        }
-        return num - right.num;
-    }
-
-    bool operator== (const int n)
-    {
-        return num == n;
-    }
-
-    bool operator== (const Card & right)
-    {
-        return num == right.num;
-    }
-
-    bool operator!= (const int n)
-    {
-        return num != n;
-    }
-
-    friend ostream & operator<< (ostream & out, const Card c)
-    {
-        out << c.num;
-        return out;
-    }
-};
-
-struct Pattern
-{
-    HandPattern type;
-    Card card[5];
-
-    Card & operator[] (int i)
-    {
-        assert(i < 5 && i >= 0);
-        return card[i];
-    }
-
-    friend ostream & operator<< (ostream & out, const Pattern & p)
-    {
-        // char* chr[4] = {"hearts", "diamonds", "club", "spade"};
-        string chr[9] = {
-            "STRAIGHT_FLUSH", 
-            "FOUR_OF_A_KIND", 
-            "FULL_HOUSE", 
-            "FLUSH", 
-            "STRAIGHT", 
-            "THREE_OF_A_KIND", 
-            "TWO_PAIR", 
-            "ONE_PAIR", 
-            "HIGH_CARD"
-        };
-        out << p.type << " " << chr[p.type] << " ";
-        for (int i = 0; i < 5; ++i)
-        {
-            out << p.card[i] << " ";
-        }
-        out << endl;
-        return out;
-    }
-};
+using std::vector;
 
 template <typename T>
 void swap(T & a, T & b)
@@ -138,211 +20,354 @@ void swap(T & a, T & b)
     b = c;
 }
 
-Pattern getPattern(Card* hand)
+Pattern getPattern(Card* in_hand)
 {
-    Pattern pat;
-    bool is_straight = true;
-    bool is_flush = true;
-
-    // judge whether is straight
-    const Suit s = hand[0].suit;
-    for (int i = 1; i <= 4; ++i)
+    /*
+     * hand: Card array(7 cards)
+    */
+    Card hand[7];
+    for (int i = 0; i < 7; ++i)
     {
-        if (hand[i].suit != s)
-        {
-            is_straight = false;
-            break;
-        }
+        hand[i] = in_hand[i];
     }
 
-    // sort these cards
-    for (int i = 0; i < 5; ++i)
+    // sort hand(reverse sequence)
+    for (int i = 0; i < 6; ++i)
     {
-        pat[i] = hand[i];
-    }
-
-    for (int i = 0; i <= 3; ++i)
-    {
-        for (int j = i + 1; j <= 4; ++j)
+        for (int j = i + 1; j < 7; ++j)
         {
-            if (pat[i] < pat[j])
+            if (hand[j] > hand[i])
             {
-                swap(pat[i], pat[j]);
+                swap(hand[i], hand[j]);
             }
         }
     }
-    // Attention: A < 2 < 3 < ... < Q < K, need to think about A alone
 
-    for (int i = 0; i < 5; ++i)
+    // @debug
+    cout << "Sorted cards:";
+    for (int i = 0; i < 7; ++i)
     {
-        cout << pat.card[i].num << " ";
+        cout << hand[i] << " ";
     }
     cout << endl;
 
-    // judge whether is flush
-    for (int i = 0; i <= 3; ++i)
+    Pattern pat;
+
+    vector<Card> suit_arr[4];
+    vector<Card> num_arr[1 + 13 + 1];
+
+    for (int i = 0; i < 7; ++i)
     {
-        if (pat[i] - pat[i + 1] != 1)
+        suit_arr[(int)hand[i].suit].push_back(hand[i]);
+        num_arr[hand[i].num].push_back(hand[i]);
+    }
+    num_arr[14] = num_arr[1];
+
+    // @debug
+    cout << "suit array size is: ";
+    for (int i = 0; i < 4; ++i)
+    {
+        cout << suit_arr[i].size() << " ";
+    }
+    cout << endl << "num array is: ";
+    for (int i = 1; i < 14; ++i)
+    {
+        cout << num_arr[i].size() << " ";
+    }
+    cout << endl;
+
+    // judge whether is straight
+    int straight_num = -1;
+    for (int i = 10; i >= 1; --i)
+    {
+        int j = 0;
+        for (j = 0; j <= 4; ++j)
         {
-            is_flush = false;
+            if (num_arr[i + j].size() == 0)
+            {
+                j = 0;
+                break;
+            }
+        }
+
+        if (j == 0)
+        {
+            continue;
+        }
+        
+        straight_num = i;
+
+        for (int j = 0; j <= 4; ++j)
+        {
+            pat[j] = num_arr[i + 4 - j][0];
+        }
+        break;
+    }
+
+    // judge whether is flush
+    int flush_num = -1;
+    for (int i = 0; i < 3; ++i)
+    {
+        if (suit_arr[i].size() >= 5)
+        {
+            flush_num = i;
+
+            // copy card to pattern
+            for (int j = 0; j < 5; ++j)
+            {
+                pat[j] = suit_arr[i][j];
+            }
+
             break;
         }
     }
 
-    // judge A 5 4 3 2
-    if (pat[0] == 1)
-    {
-        is_flush = true;
-        for (int i = 1; i <= 4; ++i)
-        {
-            if (pat[i] != 6 - i)
-            {
-                is_flush = false;
-                break;
-            }
-        }
-    }
+    // // @debug
+    // cout << "flush_num = " << flush_num << endl;
+    // cout << "straight_num = " << straight_num << endl;
+    // cout << "Suit array is:" << endl;
+    // for (int i = 0; i < suit_arr[flush_num].size(); ++i)
+    // {
+    //     cout << suit_arr[flush_num][i] << " ";
+    // }
+    // cout << endl;
 
-    if (is_flush || is_straight)
+    // the hand pattern is flush or straight
+    if (flush_num > -1 || straight_num > -1)
     {
-        if (!is_flush)
+        if (flush_num == -1)
         {
             pat.type = STRAIGHT;
         }
-        else if (!is_straight)
+        else if (straight_num == -1)
         {
             pat.type = FLUSH;
         }
         else
         {
-            pat.type = STRAIGHT_FLUSH;
+            // judge whether is Straight Flush or not
+            int cont_num = 1;       // continuous #
+            int flush_size = suit_arr[flush_num].size();
+            assert(flush_size >= 5);
+            for (int i = 1; i < flush_size; ++i)
+            {
+                if (suit_arr[flush_num][i] == suit_arr[flush_num][i - 1] - 1)
+                {
+                    ++cont_num;
+                }
+                else
+                {
+                    if (flush_size - i < 5)
+                    {
+                        // pattern is not STRAIGHT_FLUSH
+                        pat.type = FLUSH;
+                        break;
+                    }
+                    cont_num = 1;
+                }
+
+                if (cont_num == 5)
+                {
+                    // pattern is STRAIGHT_FLUSH
+                    pat.type = STRAIGHT_FLUSH;
+
+                    for (int j = 4; j >= 0; --j)
+                    {
+                        pat[j] = suit_arr[flush_num][i + j - 4];
+                    }
+
+                    break;
+                }
+            }
         }
 
         return pat;
     }
 
     // the hand pattern isn't flush nor straight
-    bool is_equal[4];
-    for (int i = 0; i < 4; ++i)
+    for (int i = 12; i >= 0; --i)
     {
-        is_equal[i] = (pat[i] == pat[i + 1]);
-    }
-
-    int equal_num = is_equal[0] + is_equal[1] + is_equal[2] + is_equal[3];
-
-    if (equal_num == 3)
-    {
-        if (is_equal[1] && is_equal[2])
+        // check whether is FOUR_OF_A_KIND or not
+        if (num_arr[i].size() == 4)
         {
-            // 4 + 1 : T T T F | F T T T
             pat.type = FOUR_OF_A_KIND;
-            if (is_equal[3])
+            // set patther card array
+            for (int j = 0; j < 4; ++j)
             {
-                // F T T T, eg. 8 4 4 4 4 --> 4 4 4 4 8
-                swap(pat[0], pat[4]);
+                pat[j] = num_arr[i][j];
             }
-        }
-        else
-        {
-            // 3 + 2 : T T F T | T F T T
-            pat.type = FULL_HOUSE;
-            if (is_equal[2])
+
+            for (int j = 0; j < 7; ++j)
             {
-                // T F T T, eg. 3 3 2 2 2 --> 2 2 2 3 3
-                swap(pat[0], pat[4]);
-                swap(pat[1], pat[3]);
+                if (hand[j] != pat[0])
+                {
+                    pat[4] = hand[j];
+                    break;
+                }
             }
+            return pat;
         }
     }
-    else if (equal_num == 2)
+
+    int three[3] = {0};     // three[0]--size, three[1],three[2]--num
+    int two[4] = {0};       // as above
+    for (int i = 12; i >= 0; --i)
     {
-        if ((is_equal[0] && is_equal[1]) || (is_equal[1] && is_equal[2]) || (is_equal[2] && is_equal[3]))
+        switch (num_arr[i].size())
         {
-            // 3 + 1 + 1 : T T F F | F T T F | F F T T
-            pat.type = THREE_OF_A_KIND;
-            if (is_equal[1] && is_equal[2])
-            {
-                // F T T F eg. 8 7 7 7 3 --> 7 7 7 8 3
-                swap(pat[0], pat[3]);
-            }
-            else if (is_equal[2] && is_equal[3])
-            {
-                // F F T T eg. 8 7 4 4 4 --> 4 4 4 8 7
-                swap(pat[0], pat[3]);
-                swap(pat[1], pat[4]);
-            }
+            case 3:
+                three[++three[0]] = i;
+                break;
+            case 2:
+                two[++two[0]] = i;
+                break;
+            default:
+                break;
+        }
+    }
+
+    if (three[0] == 2 || (three[0] == 1 && two[0] >= 1))
+    {
+        pat.type = FULL_HOUSE;
+        for (int i = 0; i < 3; ++i)
+        {
+            pat[i] = num_arr[three[1]][i];
+        }
+
+        if (three[0] == 2)
+        {
+            pat[3] = num_arr[three[2]][0];
+            pat[4] = num_arr[three[2]][1];
         }
         else
         {
-            // 2 + 2 + 1 : T F T F | T F F T | F T F T
-            pat.type = TWO_PAIR;
-            if (is_equal[0] && is_equal[3])
+            pat[3] = num_arr[two[1]][0];
+            pat[4] = num_arr[two[1]][1];
+        }       
+    }
+    else if (three[0] == 1)
+    {
+        pat.type = THREE_OF_A_KIND;
+        for (int i = 0; i < 3; ++i)
+        {
+            pat[i] = num_arr[three[1]][i];
+        }
+
+        int t = 3;
+        for (int i = 0; i < 7; ++i)
+        {
+            if (hand[i] != pat[0])
             {
-                // T F F T eg. 8 8 6 5 5 --> 8 8 5 5 6
-                // cout << "before swap:\n";
-                // cout << pat[2].num << " " << pat[4].num << endl;
-                swap(pat[2], pat[4]);
-                // cout << "after swap:" << endl;
-                // cout << pat[2].num << " " << pat[4].num << endl;
+                pat[t++] = hand[i];
             }
-            else if (is_equal[1] && is_equal[3])
+            
+            if (t >= 5)
+                break;
+        }
+    }
+    else if (two[0] >= 2)
+    {
+        pat.type = TWO_PAIR;
+        pat[0] = num_arr[two[1]][0];
+        pat[1] = num_arr[two[1]][1];
+        pat[2] = num_arr[two[2]][0];
+        pat[3] = num_arr[two[2]][1];
+
+        for (int i = 0; i < 7; ++i)
+        {
+            if (hand[i] != pat[0] && hand[i] != pat[2])
             {
-                // F T F T eg. 8 7 7 6 6 --> 7 7 6 6 8
-                swap(pat[2], pat[4]);
-                swap(pat[0], pat[4]);
+                pat[4] = hand[i];
+                break;
             }
         }
     }
-    else if (equal_num == 1)
+    else if (two[0] == 1)
     {
         pat.type = ONE_PAIR;
+        pat[0] = num_arr[two[1]][0];
+        pat[1] = num_arr[two[1]][1];
+
+        int t = 2;
+        for (int i = 0; i < 7; ++i)
+        {
+            if (hand[i] != pat[0])
+            {
+                pat[t++] = hand[i];
+            }
+            
+            if (t >= 5)
+                break;
+        }
     }
     else
     {
         pat.type = HIGH_CARD;
+        for (int i = 0; i < 5; ++i)
+        {
+            pat[i] = hand[i];
+        }
     }
 
     return pat;
 }
 
-int compare(Card* hand_1, Card* hand_2)
-{
-    // hand_1, hand_2 : 5 card
-
-}
-
 void test_get_pattern()
 {
     Card c[] = {
-        Card(2, 1),     // 0
-        Card(1, 2),     // 1
-        Card(1, 3),     // 2
-        Card(1, 4),     // 3
-        Card(1, 6),     // 4
-        Card(1, 5),     // 5
-        Card(1, 8),     // 6
-        Card(2, 8),     // 7
-        Card(2, 5),     // 8
-        Card(0, 5),     // 9
+        Card(2, 1),
+        Card(1, 2),
+        Card(1, 3),
+        Card(1, 4),
+        Card(1, 6),
+        Card(1, 5),
+        Card(1, 8),     // 0
+        Card(2, 8),     // 1
+        Card(2, 5),     // 2
+        Card(0, 5),     // 3
+        Card(0, 8),     // 4
+        Card(1, 2),     // 5
+        Card(2, 3),     // 6
+        Card(3, 4),     // 7
+        Card(0, 7),     // 8
+        Card(1, 6),     // 9
+        Card(2, 1),     // 10
+        Card(3, 1),     // 11
+        Card(0, 1),     // 12
+        Card(1, 1),     // 13
     };
 
-    // test FLUSH
-    cout << getPattern(c + 0) << endl;
-
     // test STRAIGHT_FLUSH
+    cout << getPattern(c + 0) << endl;
     cout << getPattern(c + 1) << endl;
 
-    // test STRAIGHT
+    // test FLUSH
     cout << getPattern(c + 2) << endl;
 
-    // test ONE_PAIR
-    cout << getPattern(c + 3) << endl;
-
-    // test TWO_PAIR
-    cout << getPattern(c + 4) << endl;
-
     // test FULL_HOUSE
+    cout << getPattern(c + 3) << endl;
+    cout << getPattern(c + 4) << endl;
     cout << getPattern(c + 5) << endl;
+    cout << getPattern(c + 6) << endl;
+    
+    // test TWO_PAIR
+    cout << getPattern(c + 7) << endl;
+
+    // test ONE_PAIR
+    cout << getPattern(c + 8) << endl;
+    cout << getPattern(c + 11) << endl;
+
+    // test STRAIGHT
+    cout << getPattern(c + 9) << endl;
+
+    // test HIGH_CARD
+    cout << getPattern(c + 10) << endl;
+
+    // test THREE_OF_A_KIND
+    cout << getPattern(c + 12) << endl;
+
+    // test FOUR_OF_A_KIND
+    cout << getPattern(c + 13) << endl;
 }
 
 int main(int argc, char const *argv[])
