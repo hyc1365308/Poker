@@ -1,10 +1,14 @@
 /*
  * Author   : Feng Yulin
  * Time     : 2017-04-18(1st)
+ * Function : Define poker card struct
 */
 
-#include <stdio.h>
+#ifndef CARD_H
+#define CARD_H
+
 #include <iostream>
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 
@@ -21,7 +25,7 @@ struct Card
     Suit suit;
     int num;
     Card() {}
-    Card(int s, int n)
+    Card(const int s, const int n)
     {
         suit = Suit(s);
         num = n;
@@ -30,13 +34,13 @@ struct Card
     bool operator< (const Card & right)
     {
         // compare two card by num(A,2,3,...,K)
-        if (right.num == 1)
-        {
-            return (num == 1) ? false : true;
-        }
-        else if (num == 1)
+        if (num == 1)
         {
             return false;
+        }
+        else if (right.num == 1)
+        {
+            return true;
         }
         else{
             return num < right.num;
@@ -137,3 +141,5 @@ struct Card
         return out;
     }
 };
+
+#endif

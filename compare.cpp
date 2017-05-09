@@ -63,19 +63,6 @@ Pattern getPattern(Card* in_hand)
     }
     num_arr[14] = num_arr[1];
 
-    // @debug
-    cout << "suit array size is: ";
-    for (int i = 0; i < 4; ++i)
-    {
-        cout << suit_arr[i].size() << " ";
-    }
-    cout << endl << "num array is: ";
-    for (int i = 1; i < 14; ++i)
-    {
-        cout << num_arr[i].size() << " ";
-    }
-    cout << endl;
-
     // judge whether is straight
     int straight_num = -1;
     for (int i = 10; i >= 1; --i)
@@ -121,16 +108,6 @@ Pattern getPattern(Card* in_hand)
             break;
         }
     }
-
-    // // @debug
-    // cout << "flush_num = " << flush_num << endl;
-    // cout << "straight_num = " << straight_num << endl;
-    // cout << "Suit array is:" << endl;
-    // for (int i = 0; i < suit_arr[flush_num].size(); ++i)
-    // {
-    //     cout << suit_arr[flush_num][i] << " ";
-    // }
-    // cout << endl;
 
     // the hand pattern is flush or straight
     if (flush_num > -1 || straight_num > -1)
@@ -315,7 +292,7 @@ Pattern getPattern(Card* in_hand)
 void test_get_pattern()
 {
     Card c[] = {
-        Card(2, 1),
+        Card(1, 1),
         Card(1, 2),
         Card(1, 3),
         Card(1, 4),
@@ -341,14 +318,23 @@ void test_get_pattern()
     cout << getPattern(c + 0) << endl;
     cout << getPattern(c + 1) << endl;
 
-    // test FLUSH
-    cout << getPattern(c + 2) << endl;
+    // test FOUR_OF_A_KIND
+    cout << getPattern(c + 13) << endl;
 
     // test FULL_HOUSE
     cout << getPattern(c + 3) << endl;
     cout << getPattern(c + 4) << endl;
     cout << getPattern(c + 5) << endl;
     cout << getPattern(c + 6) << endl;
+
+    // test FLUSH
+    cout << getPattern(c + 2) << endl;
+
+    // test STRAIGHT
+    cout << getPattern(c + 9) << endl;
+
+    // test THREE_OF_A_KIND
+    cout << getPattern(c + 12) << endl;
     
     // test TWO_PAIR
     cout << getPattern(c + 7) << endl;
@@ -357,17 +343,8 @@ void test_get_pattern()
     cout << getPattern(c + 8) << endl;
     cout << getPattern(c + 11) << endl;
 
-    // test STRAIGHT
-    cout << getPattern(c + 9) << endl;
-
     // test HIGH_CARD
     cout << getPattern(c + 10) << endl;
-
-    // test THREE_OF_A_KIND
-    cout << getPattern(c + 12) << endl;
-
-    // test FOUR_OF_A_KIND
-    cout << getPattern(c + 13) << endl;
 }
 
 int main(int argc, char const *argv[])

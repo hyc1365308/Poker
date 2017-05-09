@@ -1,3 +1,12 @@
+/*
+ * Author   :   Feng Yulin
+ * Time     :   2017-05-03(1st)
+ * Function :   Define hand pattern struct
+*/
+
+#ifndef PATTERN_H
+#define PATTERN_H
+
 #include "card.h"
 
 #include <iostream>
@@ -17,10 +26,10 @@ enum HandPattern
 
 struct Pattern
 {
-    HandPattern type;
-    Card card[5];
+    HandPattern type;       // hand type
+    Card card[5];           // the largest five cards
 
-    Card & operator[] (int i)
+    Card & operator[] (const int i)
     {
         assert(i < 5 && i >= 0);
         return card[i];
@@ -48,3 +57,7 @@ struct Pattern
         return out;
     }
 };
+
+Pattern getPattern(Card* in_hand);
+
+#endif
