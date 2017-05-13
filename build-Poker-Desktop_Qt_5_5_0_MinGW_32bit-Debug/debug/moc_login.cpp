@@ -19,8 +19,8 @@
 
 QT_BEGIN_MOC_NAMESPACE
 struct qt_meta_stringdata_login_t {
-    QByteArrayData data[15];
-    char stringdata0[137];
+    QByteArrayData data[14];
+    char stringdata0[131];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -40,16 +40,15 @@ QT_MOC_LITERAL(7, 57, 9), // "show_info"
 QT_MOC_LITERAL(8, 67, 7), // "sign_in"
 QT_MOC_LITERAL(9, 75, 21), // "on_userID_textChanged"
 QT_MOC_LITERAL(10, 97, 4), // "arg1"
-QT_MOC_LITERAL(11, 102, 11), // "changePhoto"
-QT_MOC_LITERAL(12, 114, 5), // "index"
-QT_MOC_LITERAL(13, 120, 8), // "_sign_in"
-QT_MOC_LITERAL(14, 129, 7) // "_cancel"
+QT_MOC_LITERAL(11, 102, 11), // "recvMessage"
+QT_MOC_LITERAL(12, 114, 8), // "_sign_in"
+QT_MOC_LITERAL(13, 123, 7) // "_cancel"
 
     },
     "login\0on_loginButton_clicked\0\0eventFilter\0"
     "obj\0QEvent*\0ev\0show_info\0sign_in\0"
-    "on_userID_textChanged\0arg1\0changePhoto\0"
-    "index\0_sign_in\0_cancel"
+    "on_userID_textChanged\0arg1\0recvMessage\0"
+    "_sign_in\0_cancel"
 };
 #undef QT_MOC_LITERAL
 
@@ -72,9 +71,9 @@ static const uint qt_meta_data_login[] = {
        7,    0,   60,    2, 0x08 /* Private */,
        8,    0,   61,    2, 0x08 /* Private */,
        9,    1,   62,    2, 0x08 /* Private */,
-      11,    1,   65,    2, 0x08 /* Private */,
-      13,    0,   68,    2, 0x0a /* Public */,
-      14,    0,   69,    2, 0x0a /* Public */,
+      11,    0,   65,    2, 0x08 /* Private */,
+      12,    0,   66,    2, 0x0a /* Public */,
+      13,    0,   67,    2, 0x0a /* Public */,
 
  // slots: parameters
     QMetaType::Void,
@@ -82,7 +81,7 @@ static const uint qt_meta_data_login[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::QString,   10,
-    QMetaType::Void, QMetaType::Int,   12,
+    QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
 
@@ -101,7 +100,7 @@ void login::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void 
         case 2: _t->show_info(); break;
         case 3: _t->sign_in(); break;
         case 4: _t->on_userID_textChanged((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 5: _t->changePhoto((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 5: _t->recvMessage(); break;
         case 6: _t->_sign_in(); break;
         case 7: _t->_cancel(); break;
         default: ;

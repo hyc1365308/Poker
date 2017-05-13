@@ -1,0 +1,21 @@
+<RCC>
+    <qresource prefix="/">
+        <file>../source/picture/icon/icon_application.jpg</file>
+        <file>../source/picture/icon/worning.jpg</file>
+        <file>../source/picture/icon/tips.jpg</file>
+        <file>../source/picture/icon/rank.jpg</file>
+        <file>../source/picture/icon/setting.jpg</file>
+        <file>../source/picture/icon/person.png</file>
+        <file>../source/picture/icon/chouma.png</file>
+        <file>../source/picture/icon/pagedown.png</file>
+        <file>../source/picture/icon/pageup.png</file>
+        <file>../source/picture/icon/room_icon.jpg</file>
+        <file>../source/picture/icon/prepare.png</file>
+        <file>../source/picture/icon/start.png</file>
+        <file>../source/picture/icon/first_flag.png</file>
+        <file>../source/picture/icon/firstflag.png</file>
+        <file>../source/picture/icon/boy.jpg</file>
+        <file>../source/picture/icon/dog.jpg</file>
+        <file>../source/picture/icon/girl1.jpg</file>
+    </qresource>
+</RCC>

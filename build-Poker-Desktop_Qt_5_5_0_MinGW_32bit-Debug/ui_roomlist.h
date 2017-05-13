@@ -37,7 +37,7 @@ public:
     QLabel *label_setting;
     QLabel *label_tips;
     QPushButton *person;
-    QLabel *userid;
+    QLabel *username;
     QLabel *usergold;
     QLabel *label;
     QFrame *line;
@@ -125,10 +125,10 @@ public:
         person->setGeometry(QRect(420, 55, 70, 70));
         person->setCursor(QCursor(Qt::OpenHandCursor));
         person->setStyleSheet(QStringLiteral("border-image: url(:/source/picture/icon/person.png);"));
-        userid = new QLabel(roomlist);
-        userid->setObjectName(QStringLiteral("userid"));
-        userid->setGeometry(QRect(530, 60, 150, 30));
-        userid->setStyleSheet(QString::fromUtf8("border-image: url();\n"
+        username = new QLabel(roomlist);
+        username->setObjectName(QStringLiteral("username"));
+        username->setGeometry(QRect(530, 60, 150, 30));
+        username->setStyleSheet(QString::fromUtf8("border-image: url();\n"
 "font: 75 12pt \"\345\256\213\344\275\223\";\n"
 "color: rgb(255, 255, 255);"));
         usergold = new QLabel(roomlist);
@@ -190,7 +190,7 @@ public:
         label_setting->setText(QApplication::translate("roomlist", "\350\256\276\347\275\256", 0));
         label_tips->setText(QApplication::translate("roomlist", "\346\217\220\347\244\272", 0));
         person->setText(QString());
-        userid->setText(QApplication::translate("roomlist", "\346\210\221\347\232\204\345\220\215\345\255\227", 0));
+        username->setText(QApplication::translate("roomlist", "\346\210\221\347\232\204\345\220\215\345\255\227", 0));
         usergold->setText(QApplication::translate("roomlist", "1000000", 0));
         label->setText(QString());
         pageup->setText(QString());
