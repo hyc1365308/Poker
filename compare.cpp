@@ -162,7 +162,7 @@ Pattern getPattern(Card* in_hand)
     }
 
     // the hand pattern isn't flush nor straight
-    for (int i = 12; i >= 0; --i)
+    for (int i = 13; i >= 1; --i)
     {
         // check whether is FOUR_OF_A_KIND or not
         if (num_arr[i].size() == 4)
@@ -188,7 +188,7 @@ Pattern getPattern(Card* in_hand)
 
     int three[3] = {0};     // three[0]--size, three[1],three[2]--num
     int two[4] = {0};       // as above
-    for (int i = 12; i >= 0; --i)
+    for (int i = 13; i >= 1; --i)
     {
         switch (num_arr[i].size())
         {
@@ -347,8 +347,22 @@ void test_get_pattern()
     cout << getPattern(c + 10) << endl;
 }
 
+void test_get_pattern2()
+{
+    Card c2[] = {
+        Card(2,1),
+        Card(1,13),
+        Card(2,13),
+        Card(0,12),
+        Card(1,11),
+        Card(1,8),
+        Card(1,3)
+    };
+    cout<<getPattern(c2)<<endl;
+}
+
 int main(int argc, char const *argv[])
 {
-    test_get_pattern();
+    test_get_pattern2();
     return 0;
 }

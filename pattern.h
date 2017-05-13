@@ -35,6 +35,71 @@ struct Pattern
         return card[i];
     }
 
+    bool operator< (const Pattern & r)
+    {
+        if (type > r.type)
+        {
+            return true;
+        }
+        else if (type == r.type)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                if (card[i] < r.card[i])
+                {
+                    return true;
+                }
+                else if (card[i] > r.card[i])
+                {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    bool operator== (const Pattern & r)
+    {
+        if (type == r.type)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                if (card[i] != r.card[i])
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return false;
+    }
+
+    bool operator> (const Pattern & r)
+    {
+        if (type < r.type)
+        {
+            return true;
+        }
+        else if (type == r.type)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                if (card[i] > r.card[i])
+                {
+                    return true;
+                }
+                else if (card[i] < r.card[i])
+                {
+                    return false;
+                }
+            }
+        }
+
+        return false;
+    }
+
     friend std::ostream & operator<< (std::ostream & out, const Pattern & p)
     {
         static std::string type_str[9] = {
