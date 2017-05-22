@@ -1,0 +1,4 @@
+void calScore(Pattern* p)
+{
+    
+}

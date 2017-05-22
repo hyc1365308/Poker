@@ -23,7 +23,7 @@ enum Suit
 struct Card
 {
     Suit suit;
-    int num;
+    int num;        // from 1 to 13
     Card() {}
     Card(const int s, const int n)
     {
