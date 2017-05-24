@@ -8,7 +8,7 @@ $(TARGET):
 	$(CXX) $(CXXFLAGS) *.h *.cpp -o compare
 
 server:
-	$(CXX) server.cpp -lws2_32 -o server && server
+	$(CXX) room.cpp server.cpp -lws2_32 -o server && server
 
 client:
 	$(CXX) client.cpp -lws2_32  -o client

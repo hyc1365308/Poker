@@ -1,4 +1,0 @@
-void calScore(Pattern* p)
-{
-    
-}
