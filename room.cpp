@@ -1,6 +1,6 @@
 #include "room.h"
 
-int Room::next_id = 1;
+int Room::next_id = 0;
 
 void* runRoom(void* arg)
 {
@@ -9,6 +9,9 @@ void* runRoom(void* arg)
     while(true)
     {
         std::cout << "Room " << room->id << " has " << room->players.size() << " players" << std::endl;
+
+        // Game
+        
 
         // sleep 3 second
         sleep(3);

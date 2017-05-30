@@ -1,8 +1,9 @@
 #include <WINSOCK2.H>
 #include <STDIO.H>
 
-#pragma  comment(lib,"ws2_32.lib")
+#include "packet.h"
 
+#pragma  comment(lib,"ws2_32.lib")
 
 int main(int argc, char* argv[])
 {
@@ -30,18 +31,29 @@ int main(int argc, char* argv[])
         closesocket(sclient);
         return 0;
     }
-    char * sendData = "Hello, I'm coming!\n";
-    send(sclient, sendData, strlen(sendData), 0);
+    // char * sendData = "Hello, I'm coming!\n";
+    std::string user_name  = "test_user";
+    std::string password   = "test";
+    std::string packet_str = Packet::login(user_name, password);
+    send(sclient, packet_str.c_str(), packet_str.size(), 0);
 
     char recData[255];
+
     while(true)
     {
-        int ret = recv(sclient, recData, 255, 0);
-        if(ret > 0)
-        {
-            recData[ret] = 0x00;
-            printf(recData);
-        }
+        // int ret = recv(sclient, recData, 255, 0);
+        // Json::Value root;
+        // if(ret > 0 && Packet::decode(recData, root))
+        // {
+        //     recData[ret] = 0x00;
+        //     printf(recData);
+        // }
+        int room_num;
+        std::cout << "> ";
+        std::cin >> room_num;
+        std::cout << std::endl;
+        packet_str = Packet::entry(room_num);
+        send(sclient, packet_str.c_str(), packet_str.size(), 0);
     }
 
     closesocket(sclient);

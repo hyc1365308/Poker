@@ -10,58 +10,18 @@
 
 using std::cout;
 using std::endl;
-
-class PlayerSock
-{
-private:
-    std::string id;             // user id(user name)
-    sockaddr_in addr;           // address, in case of need
-    const SOCKET socket;
-
-    char recv_buffer[512];      // receive buffer
-    char send_buffer[512];      // send buffer
-
-public:
-    PlayerSock(const SOCKET sock) : socket(sock)
-    {}
-
-    ~PlayerSock()
-    {
-        closesocket(socket);
-    }
-
-    bool testConnect()
-    {
-        char test_buffer[] = "test alive\r\n";
-        if (send(socket, test_buffer, strlen(test_buffer), 0) <= 0)
-            // sock has been closed
-            return false;
-        else
-            return true;
-    }
-
-    bool sendData()
-    {
-
-    }
-
-    bool recvData()
-    {
-
-    }
-};
+// using std::string;
 
 class Server
 {
 private:
-    static const int ROOM_NUM = 4;
-
     const int listen_port;
     const int game_port;
     SOCKET listen_sock;
     sockaddr_in sin;
 
-    std::vector<SOCKET> hall;
+    // std::vector<SOCKET> hall;
+    std::vector<PlayerSock*> hall;
     Room rooms[ROOM_NUM];       // ROOM_NUM rooms
 
     char recv_buffer[512];      // receive buffer
@@ -69,6 +29,7 @@ private:
 
     friend void* waitConnect(void*);
     friend void* testConnect(void*);
+    friend void* hallThread(void*);
     bool init();
 
 public:
@@ -126,10 +87,14 @@ public:
         return true;
     }
 
-    /*bool sendData()
+    bool verifyUser(std::string & user_name, std::string & password)
     {
-
-    }*/
+        cout << "verify user" << endl;
+        cout << "username: " <<user_name << endl;
+        cout << "password: " << password << endl;
+        cout << endl;
+        return true;
+    }
 
     void close()
     {
@@ -171,16 +136,63 @@ void* waitConnect(void* arg)
         }
 
         // verify the client
+        Json::Value root;
+        if(!Packet::decode(recv_buffer, root))
+        {
+            cout << "Get a bad packet, return" << endl;
+            continue;
+        }
 
+        std::string user_name = "";
+        std::string password  = "";
+        if (!root["username"].isNull())
+        {
+            user_name = root["username"].asString();
+        }
+        
+        if (!root["password"].isNull())
+        {
+            password  = root["password"].asString();
+        }
 
-        // send data
+        // send data(login succeed or failed)
         strcpy(send_buffer, "Hello, I'm a server!\n");
         send(csock, send_buffer, strlen(send_buffer), 0);
         memset(send_buffer, '\0', strlen(send_buffer));
         // strcpy(send_buffer, )
         // closesocket(csock);
-        server->hall.push_back(csock);
+        // std::string user_name = "test user";
+        PlayerSock * new_player = new PlayerSock(csock, user_name);
+        server->hall.push_back(new_player);
         // server->rooms[0]->append(csock);
+    }
+}
+
+void* hallThread(void* arg)
+{
+    Server* server = (Server*) arg;
+
+    while (true)
+    {
+        for (auto it = server->hall.begin(); it != server->hall.end(); )
+        {
+            std::string packet = (*it)->recvData();
+            if (packet != "")
+            {
+                cout << "sock " << *it << "get a packet" << endl;
+                Json::Value root;
+                if (Packet::decode(packet, root) && root["type"] == ENTRY)
+                {
+                    // if root["room"]
+                    server->rooms[root["room"].asInt()].append(*it);
+                    it = server->hall.erase(it);
+                }
+            }
+        }
+        cout << "Now hall has " << server->hall.size() << " member" << endl;
+        cout << endl;
+
+        sleep(10);  // sleep 10ms
     }
 }
 
@@ -189,21 +201,21 @@ void* testConnect(void* arg)
     // test all hall's socket connections every 5 seconds
     // if a socket is closed, remove it from the hall
     Server* server = (Server*) arg;
-    char test_buffer[] = "test alive\r\n";
     while(true)
     {
         for (auto it = server->hall.begin(); it != server->hall.end(); )
         {
             // sock = *it
-            if (send(*it, test_buffer, strlen(test_buffer), 0) <= 0)
-            {
-                // sock has been closed
-                it = server->hall.erase(it);
-            }
-            else
+            if ((*it)->testConnect())
             {
                 cout << *it << " " << endl;
                 ++it;
+            }
+            else
+            {
+                // sock has been closed
+                delete (*it);
+                it = server->hall.erase(it);
             }
         }
         cout << "Now hall has " << server->hall.size() << " member" << endl;
@@ -249,6 +261,9 @@ void Server::run()
     // create wait connection thread
     pthread_t wait_tid;
     pthread_create(&wait_tid, NULL, waitConnect, this);
+
+    pthread_t hall_tid;
+    pthread_create(&hall_tid, NULL, hallThread, this);
 
     void* tret;
     pthread_join(wait_tid, &tret);

@@ -361,8 +361,8 @@ void test_get_pattern2()
     cout<<getPattern(c2)<<endl;
 }
 
-int main(int argc, char const *argv[])
+/*int main(int argc, char const *argv[])
 {
     test_get_pattern2();
     return 0;
-}
+}*/
