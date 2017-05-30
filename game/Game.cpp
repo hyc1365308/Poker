@@ -73,15 +73,18 @@ void Game::init(){
 
 //this func will init _maxBetPlayer & _maxBet
 void Game::blindBet(){
+	cout<<"doing blindBet.....";
 	_presentPlayer->bet(MIN_BET);
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_presentPlayer->bet(MIN_BET * 2);
 	_maxBetPlayer = _presentPlayer;
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_maxBet = MIN_BET * 2;
+	cout<<"done"<<endl;
 }
 
 void Game::betTurn(){
+	cout<<"doing betTurn.....";
 	do{
 		//n_fresh();
 		cout<<_playerCount<<endl;
@@ -105,9 +108,11 @@ void Game::betTurn(){
 		}
 		_presentPlayer = _presentPlayer->_nextPlayer;
 	}while(_presentPlayer != _maxBetPlayer);
+	cout<<"done"<<endl;
 }
 
 Operate* Game::getOperate(){
+	cout<<"ready for operate..."<<endl;
 	//use a naive first
 	int a,b;
 	scanf("%d %d", &a, &b);
@@ -120,6 +125,7 @@ Operate* Game::getOperate(){
 			return new Bet(b);
 	}
 	Operate* temp = n_getOperate(_presentPlayer);
+	cout<<"done"<<endl;
 }
 
 void Game::cardShuffle(){
@@ -136,6 +142,7 @@ void Game::cardShuffle(){
 }
 
 void Game::lcsPlayer(){
+	cout<<"doing lcsPlayer...";
 	Player* p = _presentPlayer;
 	do{
 		p->license(_cardList[_cardIndex],_cardList[_cardIndex + 1]);
@@ -143,15 +150,19 @@ void Game::lcsPlayer(){
 		_cardIndex += 2;
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+	cout<<"done"<<endl;
 }
 
 void Game::lcsPublic(int i){
+	cout<<"doing lcsPublic...";
 	_publicCard[i] = _cardList[_cardIndex];
 	_cardIndex ++;
 	n_licensePublic(i + 1);
+	cout<<"done"<<endl
 }
 
 void Game::calcPattern(){
+	cout<<"calculating pattern...";
 	Card temp[7];
 	for (int i = 0; i < 5; i++)
 		temp[i] = _publicCard[i];
@@ -164,13 +175,10 @@ void Game::calcPattern(){
 		}
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+	cout<<"done"<<endl;
 }
 
 void Game::calcResult(){
-
-	cout<<"show result test!!!!"<<endl;
-	showResult();
-
 	//init _gameResult and _mark
 	Player* p = _presentPlayer;
 	do{
