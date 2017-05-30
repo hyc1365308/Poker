@@ -73,15 +73,18 @@ void Game::init(){
 
 //this func will init _maxBetPlayer & _maxBet
 void Game::blindBet(){
+	cout<<"doing blindBet.....";
 	_presentPlayer->bet(MIN_BET);
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_presentPlayer->bet(MIN_BET * 2);
 	_maxBetPlayer = _presentPlayer;
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_maxBet = MIN_BET * 2;
+	cout<<"done"<<endl;
 }
 
 void Game::betTurn(){
+	cout<<"doing betTurn.....";
 	do{
 		//n_fresh();
 		cout<<_playerCount<<endl;
@@ -105,21 +108,40 @@ void Game::betTurn(){
 		}
 		_presentPlayer = _presentPlayer->_nextPlayer;
 	}while(_presentPlayer != _maxBetPlayer);
+	cout<<"done"<<endl;
 }
 
-Operate* Game::getOperate(){
+Json::Value Game::getOperate(){
+	cout<<"ready for operate..."<<endl;
 	//use a naive first
-	int a,b;
-	scanf("%d %d", &a, &b);
-	switch(a){
-		case 0:
-			return new Fold();
-		case 1:
-			return new Allin();
-		default:
-			return new Bet(b);
+	//int a,b;
+	//scanf("%d %d", &a, &b);
+	//switch(a){
+	//	case 0:
+	//		return new Fold();
+	//	case 1:
+	//		return new Allin();
+	//	default:
+	//		return new Bet(b);
+	//}
+	Json::Value temp = n_getOperate(_presentPlayer);
+	if (temp["type"] == FOLD){
+		cout<<"done"<<endl;
+		return new Fold();
 	}
-	Operate* temp = n_getOperate(_presentPlayer);
+	if (temp["type"] == ALLIN){
+		cout<<"done"<<endl;
+		return new Allin();
+	}
+	if (temp["type"] == CALL){
+		cout<<"done"<<endl;
+		return new Bet(_maxBet - _presentPlayer->_presentBet);
+	}
+	if (temp["type"] == REFUEL){
+		cout<<"done"<<endl;
+		return new Bet(root["money"]);
+	}
+	cout<<"invalid operate!"<<endl;
 }
 
 void Game::cardShuffle(){
@@ -136,6 +158,7 @@ void Game::cardShuffle(){
 }
 
 void Game::lcsPlayer(){
+	cout<<"doing lcsPlayer...";
 	Player* p = _presentPlayer;
 	do{
 		p->license(_cardList[_cardIndex],_cardList[_cardIndex + 1]);
@@ -143,15 +166,19 @@ void Game::lcsPlayer(){
 		_cardIndex += 2;
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+	cout<<"done"<<endl;
 }
 
 void Game::lcsPublic(int i){
+	cout<<"doing lcsPublic...";
 	_publicCard[i] = _cardList[_cardIndex];
 	_cardIndex ++;
 	n_licensePublic(i + 1);
+	cout<<"done"<<endl
 }
 
 void Game::calcPattern(){
+	cout<<"calculating pattern...";
 	Card temp[7];
 	for (int i = 0; i < 5; i++)
 		temp[i] = _publicCard[i];
@@ -164,13 +191,10 @@ void Game::calcPattern(){
 		}
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+	cout<<"done"<<endl;
 }
 
 void Game::calcResult(){
-
-	cout<<"show result test!!!!"<<endl;
-	showResult();
-
 	//init _gameResult and _mark
 	Player* p = _presentPlayer;
 	do{
