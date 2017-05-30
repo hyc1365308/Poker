@@ -38,22 +38,94 @@ int main(int argc, char* argv[])
     send(sclient, packet_str.c_str(), packet_str.size(), 0);
 
     char recData[255];
+    int ret;
+    Json::Value root;
 
+    // login
+    while (true)
+    {
+        ret = recv(sclient, recData, 255, 0);
+        if(ret > 0 && Packet::decode(recData, root))
+        {
+            recData[ret] = 0x00;
+            if (root["type"] == LOGIN_RESULT && root["result"].asInt() == SUCCEED)
+            {
+                std::cout << "login succeed, money is " << root["money"] << std::endl;
+            }
+            break;
+        }
+    }
+
+    // entry a room
+    while (true)
+    {
+        std::cout << "Please input room num: ";
+        int room_id;
+        std::cin >> room_id;
+        std::cout << std::endl;
+        packet_str = Packet::entry(room_id);
+        send(sclient, packet_str.c_str(), packet_str.size(), 0);
+        ret = recv(sclient, recData, 255, 0);
+        if(ret > 0 && Packet::decode(recData, root))
+        {
+            recData[ret] = 0x00;
+            if (root["type"] == ENTRY_RESULT && root["result"].asInt() == SUCCEED)
+            {
+                std::cout << "entry room " << root["room"] << std::endl;
+            }
+            break;
+        }
+    }
+
+    // begin a game
     while(true)
     {
-        // int ret = recv(sclient, recData, 255, 0);
-        // Json::Value root;
-        // if(ret > 0 && Packet::decode(recData, root))
-        // {
-        //     recData[ret] = 0x00;
-        //     printf(recData);
-        // }
-        int room_num;
-        std::cout << "> ";
-        std::cin >> room_num;
-        std::cout << std::endl;
-        packet_str = Packet::entry(room_num);
-        send(sclient, packet_str.c_str(), packet_str.size(), 0);
+        ret = recv(sclient, recData, 255, 0);
+        if(ret > 0 && Packet::decode(recData, root))
+        {
+            recData[ret] = 0x00;
+            if (root["type"] == TEST_ALIVE)
+            {
+                std::cout << "server test alive" << std::endl;
+                continue;
+            }
+            else if (root["type"] != REQUSET)
+            {
+                continue;
+            }
+            else
+            {
+                std::cout << "Please input an operator(call, refuel, fold, allin)" << std::endl;
+                std::string operation;
+                std::cin >> operation;
+                if (operation == "call")
+                {
+                    packet_str = Packet::call();
+                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                }
+                else if (operation == "refuel")
+                {
+                    int money;
+                    std::cin >> money;
+                    packet_str = Packet::refuel(money);
+                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                }
+                else if (operation == "fold")
+                {
+                    packet_str = Packet::fold();
+                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                }
+                else if (operation == "allin")
+                {
+                    packet_str = Packet::allin();
+                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                }
+            }
+        }
+        else
+        {
+            continue;
+        }
     }
 
     closesocket(sclient);

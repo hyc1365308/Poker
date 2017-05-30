@@ -156,13 +156,14 @@ void* waitConnect(void* arg)
         }
 
         // send data(login succeed or failed)
-        strcpy(send_buffer, "Hello, I'm a server!\n");
-        send(csock, send_buffer, strlen(send_buffer), 0);
-        memset(send_buffer, '\0', strlen(send_buffer));
+        // strcpy(send_buffer, "Hello, I'm a server!\n");
+        // send(csock, send_buffer, strlen(send_buffer), 0);
+        // memset(send_buffer, '\0', strlen(send_buffer));
         // strcpy(send_buffer, )
         // closesocket(csock);
         // std::string user_name = "test user";
         PlayerSock * new_player = new PlayerSock(csock, user_name);
+        new_player->sendData(Packet::rLogin(true, 10000));
         server->hall.push_back(new_player);
         // server->rooms[0]->append(csock);
     }
@@ -179,20 +180,22 @@ void* hallThread(void* arg)
             std::string packet = (*it)->recvData();
             if (packet != "")
             {
-                cout << "sock " << *it << "get a packet" << endl;
+                cout << "sock " << *it << " get a packet" << endl;
                 Json::Value root;
                 if (Packet::decode(packet, root) && root["type"] == ENTRY)
                 {
                     // if root["room"]
-                    server->rooms[root["room"].asInt()].append(*it);
+                    int room_id = root["room"].asInt();
+                    server->rooms[room_id].append(*it);
                     it = server->hall.erase(it);
+                    (*it)->sendData(Packet::rEntry(true, room_id));
                 }
+
+                cout << "Now hall has " << server->hall.size() << " member" << endl;
             }
         }
-        cout << "Now hall has " << server->hall.size() << " member" << endl;
-        cout << endl;
 
-        sleep(10);  // sleep 10ms
+        Sleep(10);  // sleep 10ms
     }
 }
 

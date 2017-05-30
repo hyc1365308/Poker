@@ -71,6 +71,22 @@ public:
         return sock->sendData(packet);
     }
 
+    Json::Value getOperate(Player* player)
+    {
+        PlayerSock * sock = get_player(player);
+        Json::Value root;
+        sock->sendData(Packet::requset());
+        while (true)
+        {
+            if (!Packet::decode(sock->recvData(), root))
+            {
+                continue;
+            }
+        }
+
+        return root;
+    }
+
     PlayerSock* operator[](const int i)
     {
         /*
@@ -80,6 +96,7 @@ public:
     }
 
     int get_id() { return id; }
+    int get_num() { return players.size(); }
 
     PlayerSock* get_player(const int i) {
         if (i >= players.size() || i < 0)

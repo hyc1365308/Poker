@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "json/json.h"
-#include "room.h"
+// #include "room.h"
  
 // extern class Room;
 
@@ -26,7 +26,9 @@ enum Type
     CALL,
     FOLD,
     ALLIN,
+    REQUSET,
     LOGIN_RESULT,
+    ENTRY_RESULT,
     PREPARE_RESULT,
     DIS_PREPARE_RESULT,
     BEGIN_GAME,
@@ -174,6 +176,20 @@ public:
     /*
      * server packet
     */
+    static std::string testAlive()
+    {
+        Json::Value root;
+        root["type"] = TEST_ALIVE;
+        return root.toStyledString();
+    }
+
+    static std::string requset()
+    {
+        Json::Value root;
+        root["type"] = REQUSET;
+        return root.toStyledString();
+    }
+
     static std::string rLogin(bool succeed, const int money = 0)
     {
         /*
@@ -183,6 +199,15 @@ public:
         root["type"] = LOGIN_RESULT;
         root["result"] = succeed ? SUCCEED : FAILURE;
         root["money"] = money;
+        return root.toStyledString();
+    }
+
+    static std::string rEntry(bool succeed, const int room_id)
+    {
+        Json::Value root;
+        root["type"]   = ENTRY_RESULT;
+        root["result"] = succeed ? SUCCEED : FAILURE;
+        root["room"]   = room_id;
         return root.toStyledString();
     }
 

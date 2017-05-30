@@ -43,9 +43,9 @@ public:
 	void showResult();
 
 	//network interfaces;
-	Operate* n_getOperate(Player*);
-	void     n_licensePlayer(Player*, Card, Card);
-	void     n_licensePublic(int);
+	Json::Value n_getOperate(Player*);
+	void     n_licensePlayer(Player*, Card & , Card & );
+	void     n_licensePublic(int, Card & );
 	void     n_fresh();
 	void     n_showResult();
 };

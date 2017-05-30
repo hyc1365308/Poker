@@ -9,22 +9,27 @@ void* runRoom(void* arg)
     // run room thread
     while(true)
     {
+        if (room->get_num() < 4)
+        {
+            // sleep 3 second
+            sleep(3);
+            continue;
+        }
+
         std::cout << "Room " << room->id << " has " << room->players.size() << " players" << std::endl;
 
         std::vector<Player*> pv;
-        // // begin a new game
-        // std::cout << "Now begin a new game" << std::endl;
-        // for (auto it : room->players)
-        // {
-        //     Player* player = new Player(it->get_id(), 100);
-        //     pv.push_back(player);
-        // }
+        // begin a new game
+        std::cout << "Now begin a new game" << std::endl;
+        for (auto it : room->players)
+        {
+            Player* player = new Player(it->get_id(), 100);
+            pv.push_back(player);
+        }
 
-        // Game new_game(pv, room);
-        // // new_game.run();
-
-        // sleep 3 second
-        sleep(3);
+        Game new_game(pv, room);
+        new_game.start();
+        // new_game.run();      
     }
 }
 

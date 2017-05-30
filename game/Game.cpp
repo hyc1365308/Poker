@@ -340,15 +340,16 @@ void Game::showResult(){
 	}while(p != _presentPlayer);
 }
 
-Operate* Game::n_getOperate(Player* p){
+Json::Value Game::n_getOperate(Player* p){
 	//get a operate from Player p's socket and return the operate
+	return _room->getOperate();
 }
 
-void Game::n_licensePlayer(Player* p, Card c1, Card c2){
+void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){
 	//tell Player p :he was licensed 2 Card: c1 & c2
 }
 
-void Game::n_licensePublic(int index){
+void Game::n_licensePublic(int index, Card & card){
 	//tell all Players about first index public card(stored in _publicCard[5])
 }
 

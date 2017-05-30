@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <pthread.h>
 
+#include "packet.h"
+
 const int ROOM_NUM = 4;
 const int MAX_PLAYER_NUM = 8;
 
@@ -33,8 +35,9 @@ public:
 
     bool testConnect()
     {
-        char test_buffer[] = "test alive\r\n";
-        if (send(sock, test_buffer, strlen(test_buffer), 0) <= 0)
+        // char test_buffer[] = "test alive\r\n";
+        std::string packet = Packet::testAlive();
+        if (send(sock, packet.c_str(), packet.size(), 0) <= 0)
             // sock has been closed
             return false;
         else
