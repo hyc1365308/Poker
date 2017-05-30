@@ -111,21 +111,37 @@ void Game::betTurn(){
 	cout<<"done"<<endl;
 }
 
-Operate* Game::getOperate(){
+Json::Value Game::getOperate(){
 	cout<<"ready for operate..."<<endl;
 	//use a naive first
-	int a,b;
-	scanf("%d %d", &a, &b);
-	switch(a){
-		case 0:
-			return new Fold();
-		case 1:
-			return new Allin();
-		default:
-			return new Bet(b);
+	//int a,b;
+	//scanf("%d %d", &a, &b);
+	//switch(a){
+	//	case 0:
+	//		return new Fold();
+	//	case 1:
+	//		return new Allin();
+	//	default:
+	//		return new Bet(b);
+	//}
+	Json::Value temp = n_getOperate(_presentPlayer);
+	if (temp["type"] == FOLD){
+		cout<<"done"<<endl;
+		return new Fold();
 	}
-	Operate* temp = n_getOperate(_presentPlayer);
-	cout<<"done"<<endl;
+	if (temp["type"] == ALLIN){
+		cout<<"done"<<endl;
+		return new Allin();
+	}
+	if (temp["type"] == CALL){
+		cout<<"done"<<endl;
+		return new Bet(_maxBet - _presentPlayer->_presentBet);
+	}
+	if (temp["type"] == REFUEL){
+		cout<<"done"<<endl;
+		return new Bet(root["money"]);
+	}
+	cout<<"invalid operate!"<<endl;
 }
 
 void Game::cardShuffle(){
