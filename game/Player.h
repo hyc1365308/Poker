@@ -30,7 +30,7 @@ public:
 
 	Player* _lastPlayer;
 	Player* _nextPlayer;
-	Player(string name, int money,Player* lastPlayer = NULL, Player* nextPlayer = NULL):
+	Player(string name, int money, Player* lastPlayer = NULL, Player* nextPlayer = NULL):
 		 _name(name), _money(money), _lastPlayer(lastPlayer), _nextPlayer(nextPlayer){
 
 	}

@@ -5,6 +5,7 @@
 #include "Game.h"
 #include "compare.cpp"
 
+
 using namespace std;
 
 Game::Game(std::vector<Player*> v, Room* r): _banker(v[0]), _presentPlayer(v[0]), _room(r){
@@ -364,7 +365,7 @@ void Game::n_showResult(){
 }
 
 
-int main(){
+/*int main(){
 	Player *t, *t2, *t3;
 	t = new Player("one", 10000);
 	t2 = new Player("two", 20000);
@@ -380,4 +381,4 @@ int main(){
 	Game game(v, r);
 	game.start();
 	return 0;
-}
+}*/

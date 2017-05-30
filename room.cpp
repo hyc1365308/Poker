@@ -1,4 +1,5 @@
 #include "room.h"
+#include "./game/Game.h"
 
 int Room::next_id = 0;
 
@@ -10,8 +11,17 @@ void* runRoom(void* arg)
     {
         std::cout << "Room " << room->id << " has " << room->players.size() << " players" << std::endl;
 
-        // Game
-        
+        std::vector<Player*> pv;
+        // // begin a new game
+        // std::cout << "Now begin a new game" << std::endl;
+        // for (auto it : room->players)
+        // {
+        //     Player* player = new Player(it->get_id(), 100);
+        //     pv.push_back(player);
+        // }
+
+        // Game new_game(pv, room);
+        // // new_game.run();
 
         // sleep 3 second
         sleep(3);

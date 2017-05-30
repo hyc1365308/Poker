@@ -3,8 +3,10 @@
 
 #include "player_sock.h"
 #include "packet.h"
-#include "./game/Player.h"
+// #include "./game/Player.h"
 #include "./game/Game.h"
+
+// extern class Game;
 
 class Room
 {

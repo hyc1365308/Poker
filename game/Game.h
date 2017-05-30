@@ -13,7 +13,7 @@
 
 const int MIN_BET = 100;
 
-extern class Room;
+class Room;
 
 class Game{
 public:
