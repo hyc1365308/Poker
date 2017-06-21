@@ -14,6 +14,7 @@ class PlayerSock
 {
 private:
     std::string id;             // user id(user name)
+    int money;                  // user money
     // sockaddr_in addr;        // address, in case of need
     const SOCKET sock;
 
@@ -21,7 +22,7 @@ private:
     char send_buffer[512];      // send buffer
 
 public:
-    PlayerSock(const SOCKET sock, const std::string & id) : sock(sock), id(id)
+    PlayerSock(const SOCKET sock, const std::string & id, const int money) : sock(sock), id(id), money(money)
     {
         std::cout << "A new player login now" << std::endl;
         std::cout << "player id = " << id << ", sock = " << sock << std::endl;
@@ -71,5 +72,6 @@ public:
     }
 
     std::string get_id() { return id; }
+    int get_money() { return money; }
 };
 

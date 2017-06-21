@@ -128,14 +128,14 @@ public:
         return NULL;
     }
 
-    // std::vector<PlayerTuple> & getPlayers()
-    // {
-    //     std::vector<PlayerTuple> player_tuples;
-    //     for (int i = 0; i < players.size(); ++i)
-    //     {
-    //         player_tuples.push_back(make_tuple(players[i]));
-    //     }
-    // }
+    std::vector<PlayerTuple> getPlayers()
+    {
+        std::vector<PlayerTuple> player_tuples;
+        for (int i = 0; i < players.size(); ++i)
+        {
+            player_tuples.push_back(make_tuple(players[i]->get_id(), players[i]->get_money()));
+        }
+    }
 };
 
 #endif

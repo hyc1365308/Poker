@@ -6,21 +6,32 @@
 
 #include "room.h"
 
+#include <iostream>
+#include <fstream>
 #include <stdio.h>
+#include <map>
+#include <vector>
+#include <tuple>
 
-using std::cout;
-using std::endl;
+using namespace std;
+// using std::cout;
+// using std::endl;
 // using std::string;
+
+const char* player_file_path = "./data/player_info.txt";
+
+typedef std::tuple<std::string, int> PlayerInfo;   // password money
 
 class Server
 {
 private:
+    std::map<std::string, PlayerInfo> players;    // 所有玩家的信息，id作为key，money与密码为键值
+
     const int listen_port;
     const int game_port;
     SOCKET listen_sock;
     sockaddr_in sin;
 
-    // std::vector<SOCKET> hall;
     std::vector<PlayerSock*> hall;
     Room rooms[ROOM_NUM];       // ROOM_NUM rooms
 
@@ -31,6 +42,33 @@ private:
     friend void* testConnect(void*);
     friend void* hallThread(void*);
     bool init();
+
+    void loadMoney(const char * file_name);
+
+    bool verifyUser(std::string & user_name, std::string & password)
+    {
+        cout << "verify user" << endl;
+        cout << "username: " <<user_name << endl;
+        cout << "password: " << password << endl;
+        cout << endl;
+
+        if (players.find(user_name) != players.end())
+        {
+            cout << "user not in the name list" << endl;
+            return false;
+        }
+        else
+        {
+            if (get<0>(players[user_name]) != password)
+            {
+                cout << "password is incorrect" << endl;
+                return false;
+            }
+        }
+
+        return true;
+    }
+
 
 public:
     Server(const int listen_port = 8900, const int game_port = 8901) : listen_port(listen_port), game_port(game_port)
@@ -87,15 +125,6 @@ public:
         return true;
     }
 
-    bool verifyUser(std::string & user_name, std::string & password)
-    {
-        cout << "verify user" << endl;
-        cout << "username: " <<user_name << endl;
-        cout << "password: " << password << endl;
-        cout << endl;
-        return true;
-    }
-
     void close()
     {
         closesocket(listen_sock);
@@ -104,6 +133,24 @@ public:
 
     void run();
 };
+
+void Server::loadMoney(const char* file_name)
+{
+    std::ifstream fin(file_name);
+    int num;        // 玩家个数
+    fin >> num;
+    std::string id, password;
+    int money;
+    cout << endl << "Read players data" << endl;
+    printf("Num     id     password    money\n");
+    for (int i = 0; i < num; ++i)
+    {
+        fin >> id >> password >> money;
+        players[id] = make_tuple(password, money);
+        printf("%3d %8s %12s %7d\n", i, id.c_str(), password.c_str(), money);
+    }
+    fin.close();
+}
 
 void* waitConnect(void* arg)
 {
@@ -155,14 +202,13 @@ void* waitConnect(void* arg)
             password  = root["password"].asString();
         }
 
-        // send data(login succeed or failed)
-        // strcpy(send_buffer, "Hello, I'm a server!\n");
-        // send(csock, send_buffer, strlen(send_buffer), 0);
-        // memset(send_buffer, '\0', strlen(send_buffer));
-        // strcpy(send_buffer, )
-        // closesocket(csock);
-        // std::string user_name = "test user";
-        PlayerSock * new_player = new PlayerSock(csock, user_name);
+        // verify players name & password
+        if (!server->verifyUser(user_name, password))
+        {
+            continue;
+        }
+
+        PlayerSock * new_player = new PlayerSock(csock, user_name, get<1>(server->players[user_name]));
         new_player->sendData(Packet::rLogin(true, 10000));
         server->hall.push_back(new_player);
         std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
@@ -252,6 +298,8 @@ bool Server::init()
         cout << "Create socket error!!!" << endl;
         return false;
     }
+
+    loadMoney(player_file_path);
 
     return true;
 }

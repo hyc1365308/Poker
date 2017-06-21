@@ -10,7 +10,7 @@
 #define SUCCEED 1
 #define FAILURE 0
 
-typedef std::tuple<int, int> PlayerTuple;
+typedef std::tuple<std::string, int> PlayerTuple;
 
 enum Type
 {
@@ -71,6 +71,29 @@ public:
         root["username"] = username;
         root["password"] = password;
         return root.toStyledString();
+    }
+
+    static std::vector<PlayerTuple> getRoomInfo(std::string packet)
+    {
+        std::vector<PlayerTuple> player_tuples;
+
+        Json::Reader reader;
+        Json::Value root;
+
+        if (reader.parse(packet, root) && !root["type"].isNull() && root["type"] == ROOM)
+        {
+            Json::Value seat_array = root["seat"];
+            Json::Value item;
+            for (int i = 0; i < seat_array.size(); ++i)
+            {
+                std::string id = seat_array[i]["id"].asString();
+                int money = seat_array[i]["money"].asInt();
+
+                player_tuples.push_back(make_tuple(id, money));
+            }
+        }
+
+        return player_tuples;
     }
 
     static std::string entry(const int room_num)
