@@ -128,13 +128,17 @@ public:
         return NULL;
     }
 
-    std::vector<PlayerTuple> getPlayers()
+    std::vector<PlayerTuple> getPlayers(const PlayerSock* player_sock)
     {
+        std::string player_id = player_sock->get_id();
         std::vector<PlayerTuple> player_tuples;
         for (int i = 0; i < players.size(); ++i)
         {
-            player_tuples.push_back(make_tuple(players[i]->get_id(), players[i]->get_money()));
+            bool is_in = (player_id == players[i]->get_id()) ? true : false;
+            player_tuples.push_back(make_tuple(players[i]->get_id(), players[i]->get_money(), is_in));
         }
+
+        return player_tuples;
     }
 };
 

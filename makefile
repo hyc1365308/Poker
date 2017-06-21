@@ -7,7 +7,7 @@ json: $(JSON)
 
 game: ./game/Player.o ./game/Game.o ./room.h
 	$(CXX) $(CXXFLAGS) -c ./game/Player.cpp -o ./game/Player.o
-	$(CXX) $(CXXFLAGS) -c ./game/Player.o ./game/Game.cpp -o ./game/Game.o
+	$(CXX) $(CXXFLAGS) -c ./game/Game.cpp -o ./game/Game.o
 
 room: game room.o
 	$(CXX) $(CXXFLAGS) -c ./game/Game.o ./game/Player.o room.cpp -o room.o
@@ -19,7 +19,7 @@ server2: game json room
 	$(CXX) $(JSON) $(GAME) room.o server.cpp -lws2_32 -o server2
 
 client: json
-	$(CXX) $(CXXFLAGS) ./lib_json/*.o client.cpp -lws2_32 -o client && client
+	$(CXX) $(CXXFLAGS) ./lib_json/*.o client.cpp -lws2_32 -o client
 
 data: 
 	$(CXX) $(JSON) data.cpp -o data

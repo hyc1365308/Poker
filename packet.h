@@ -10,7 +10,8 @@
 #define SUCCEED 1
 #define FAILURE 0
 
-typedef std::tuple<std::string, int> PlayerTuple;
+// 名字 money 位置
+typedef std::tuple<std::string, int, bool> PlayerTuple;
 
 enum Type
 {
@@ -73,7 +74,7 @@ public:
         return root.toStyledString();
     }
 
-    static std::vector<PlayerTuple> getRoomInfo(std::string packet)
+    static std::vector<PlayerTuple> getRoomInfo(const std::string & packet)
     {
         std::vector<PlayerTuple> player_tuples;
 
@@ -88,8 +89,9 @@ public:
             {
                 std::string id = seat_array[i]["id"].asString();
                 int money = seat_array[i]["money"].asInt();
+                bool is_in = seat_array[i]["is_in"].asInt();
 
-                player_tuples.push_back(make_tuple(id, money));
+                player_tuples.push_back(make_tuple(id, money, is_in));
             }
         }
 
@@ -199,7 +201,8 @@ public:
     static std::string testAlive()
     {
         Json::Value root;
-        root["type"] = TEST_ALIVE;
+        // root["type"] = TEST_ALIVE;
+        root["type"] = INVALID;
         return root.toStyledString();
     }
 
@@ -287,7 +290,7 @@ public:
     //     return root.toStyledString();
     // }
 
-    static std::string room(const int room_id, std::vector<PlayerTuple> & players)
+    static std::string room(const int room_id, const int location, std::vector<PlayerTuple> & players)
     {
         /*
          * room information
@@ -302,6 +305,7 @@ public:
             PlayerTuple & player = players[i];
             item["id"] = std::get<0>(player);
             item["money"] = std::get<1>(player);
+            item["is_in"] = (location == i) ? 1 : 0;
             seat_array.append(item);
         }
         root["seat"] = seat_array;

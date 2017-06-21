@@ -47,6 +47,9 @@ public:
 
     bool sendData(std::string data)
     {
+        // std::cout << std::endl << "send player " << id << " " << std::endl << data << std::endl;
+        // std::cout << "now send data" << std::endl;
+
         if (send(sock, data.c_str(), data.size() + 1, 0) <= 0)
             return true;
         else
@@ -71,7 +74,7 @@ public:
         return out;
     }
 
-    std::string get_id() { return id; }
-    int get_money() { return money; }
+    std::string get_id() const { return id; }
+    int get_money() const { return money; }
 };
 

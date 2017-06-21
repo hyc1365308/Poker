@@ -52,9 +52,10 @@ private:
         cout << "password: " << password << endl;
         cout << endl;
 
-        if (players.find(user_name) != players.end())
+        if (players.find(user_name) == players.end())
         {
             cout << "user not in the name list" << endl;
+            cout << "user name: " << user_name << endl;
             return false;
         }
         else
@@ -62,6 +63,7 @@ private:
             if (get<0>(players[user_name]) != password)
             {
                 cout << "password is incorrect" << endl;
+                cout << "id: " << user_name << ", pass: " << password << endl;
                 return false;
             }
         }
@@ -113,7 +115,7 @@ public:
         sockaddr_in remoteAddr;
         int nAddrlen = sizeof(remoteAddr);
 
-        printf("Waiting for connecting...\r\n");
+        printf("\nWaiting for connecting...\r\n");
         sClient = accept(listen_sock, (SOCKADDR *)&remoteAddr, &nAddrlen);
 
         if(sClient == INVALID_SOCKET)
@@ -208,8 +210,17 @@ void* waitConnect(void* arg)
             continue;
         }
 
-        PlayerSock * new_player = new PlayerSock(csock, user_name, get<1>(server->players[user_name]));
-        new_player->sendData(Packet::rLogin(true, 10000));
+        int money = get<1>(server->players[user_name]);
+        cout << "client sock = " << csock << endl;
+        PlayerSock * new_player = new PlayerSock(csock, user_name, money);
+
+        bool flag = new_player->sendData(Packet::rLogin(true, money));
+        // new_player->sendData("just for test\n");
+        if (!flag)
+        {
+            cout << "cannot send login result" << endl;
+        }
+        
         server->hall.push_back(new_player);
         std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
         // server->rooms[0]->append(csock);
@@ -306,9 +317,9 @@ bool Server::init()
 
 void Server::run()
 {
-    // // create test connection thread
-    // pthread_t test_tid;
-    // pthread_create(&test_tid, NULL, testConnect, this);
+    // create test connection thread
+    pthread_t test_tid;
+    pthread_create(&test_tid, NULL, testConnect, this);
 
     // create wait connection thread
     pthread_t wait_tid;
@@ -320,7 +331,7 @@ void Server::run()
     void* tret;
     pthread_join(wait_tid, &tret);
     pthread_join(hall_tid, &tret);
-    // pthread_join(test_tid, &tret);
+    pthread_join(test_tid, &tret);
 }
 
 int main(int argc, char* argv[])
