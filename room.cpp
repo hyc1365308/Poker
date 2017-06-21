@@ -9,7 +9,7 @@ void* runRoom(void* arg)
     // run room thread
     while(true)
     {
-        if (room->get_num() < 4)
+        if (room->get_num() < 3)
         {
             // sleep 3 second
             sleep(3);
@@ -23,13 +23,13 @@ void* runRoom(void* arg)
         std::cout << "Now begin a new game" << std::endl;
         for (auto it : room->players)
         {
-            Player* player = new Player(it->get_id(), 100);
+            Player* player = new Player(it->get_id(), 10000);
             pv.push_back(player);
         }
 
         Game new_game(pv, room);
         new_game.start();
-        // new_game.run();      
+        // new_game.run();
     }
 }
 

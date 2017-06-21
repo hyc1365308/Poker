@@ -3,14 +3,14 @@
 
 #include <string>
 #include <vector>
+#include <tuple>
 
 #include "json/json.h"
-// #include "room.h"
- 
-// extern class Room;
 
 #define SUCCEED 1
 #define FAILURE 0
+
+typedef std::tuple<int, int> PlayerTuple;
 
 enum Type
 {
@@ -39,9 +39,6 @@ enum Type
 class Packet
 {
 public:
-    // Packet();
-    // ~Packet();
-
     /*
      * decode packet
     */
@@ -267,26 +264,26 @@ public:
     //     return root.toStyledString();
     // }
 
-    // static std::string room(Room & room)
-    // {
-    //     /*
-    //      * room information
-    //     */
-    //     Json::Value root;
-    //     Json::Value seat_array;
-    //     Json::Value item;
-    //     root["type"] = ROOM;
-    //     root["room_id"] = room->get_id();
-    //     for (int i = 0; i < MAX_PLAYER_NUM; ++i)
-    //     {
-    //         PlayerSock * player = room->get_player(i);
-    //         item["id"] = player->get_id();
-    //         item["money"] = 0;      // to be perfected
-    //         seat_array.append(item);
-    //     }
-    //     root["seat"] = seat_array;
-    //     return root.toStyledString();
-    // }
+    static std::string room(const int room_id, std::vector<PlayerTuple> & players)
+    {
+        /*
+         * room information
+        */
+        Json::Value root;
+        Json::Value seat_array;
+        Json::Value item;
+        root["type"] = ROOM;
+        root["room_id"] = room_id;
+        for (int i = 0; i < players.size(); ++i)
+        {
+            PlayerTuple & player = players[i];
+            item["id"] = std::get<0>(player);
+            item["money"] = std::get<1>(player);
+            seat_array.append(item);
+        }
+        root["seat"] = seat_array;
+        return root.toStyledString();
+    }
 };
 
 #endif

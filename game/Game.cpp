@@ -19,6 +19,8 @@ Game::Game(std::vector<Player*> v, Room* r): _banker(v[0]), _presentPlayer(v[0])
 		cout<<v[i]->_nextPlayer->_name<<endl;
 		cout<<v[i]->_lastPlayer->_name<<endl;
 	}
+
+	cout << "room id is " << _room->get_id() << endl;
 }
 
 void Game::start(){
@@ -111,7 +113,7 @@ void Game::betTurn(){
 	cout<<"done"<<endl;
 }
 
-Json::Value Game::getOperate(){
+Operate* Game::getOperate(){
 	cout<<"ready for operate..."<<endl;
 	//use a naive first
 	//int a,b;
@@ -139,7 +141,7 @@ Json::Value Game::getOperate(){
 	}
 	if (temp["type"] == REFUEL){
 		cout<<"done"<<endl;
-		return new Bet(root["money"]);
+		return new Bet(temp["money"].asInt());
 	}
 	cout<<"invalid operate!"<<endl;
 }
@@ -173,8 +175,8 @@ void Game::lcsPublic(int i){
 	cout<<"doing lcsPublic...";
 	_publicCard[i] = _cardList[_cardIndex];
 	_cardIndex ++;
-	n_licensePublic(i + 1);
-	cout<<"done"<<endl
+	n_licensePublic(i + 1, _publicCard[i]);
+	cout<<"done"<<endl;
 }
 
 void Game::calcPattern(){
@@ -366,7 +368,7 @@ void Game::showResult(){
 
 Json::Value Game::n_getOperate(Player* p){
 	//get a operate from Player p's socket and return the operate
-	return _room->getOperate();
+	return _room->getOperate(p);
 }
 
 void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){

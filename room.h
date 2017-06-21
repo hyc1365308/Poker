@@ -3,10 +3,7 @@
 
 #include "player_sock.h"
 #include "packet.h"
-// #include "./game/Player.h"
 #include "./game/Game.h"
-
-// extern class Game;
 
 class Room
 {
@@ -73,16 +70,25 @@ public:
 
     Json::Value getOperate(Player* player)
     {
+        std::cout << "get operation now" << std::endl;
         PlayerSock * sock = get_player(player);
+        std::cout << "now turn to player " << sock->get_id() << std::endl;
         Json::Value root;
         sock->sendData(Packet::requset());
         while (true)
         {
-            if (!Packet::decode(sock->recvData(), root))
+            std::string packet_str = sock->recvData();
+            // std::cout << "recv " << packet_str << std::endl;
+            if (!Packet::decode(packet_str, root))
             {
                 continue;
             }
+            else
+            {
+                break;
+            }
         }
+        std::cout << "get operation done" << std::endl;
 
         return root;
     }
@@ -121,6 +127,15 @@ public:
 
         return NULL;
     }
+
+    // std::vector<PlayerTuple> & getPlayers()
+    // {
+    //     std::vector<PlayerTuple> player_tuples;
+    //     for (int i = 0; i < players.size(); ++i)
+    //     {
+    //         player_tuples.push_back(make_tuple(players[i]));
+    //     }
+    // }
 };
 
 #endif

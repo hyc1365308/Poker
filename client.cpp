@@ -32,8 +32,10 @@ int main(int argc, char* argv[])
         return 0;
     }
     // char * sendData = "Hello, I'm coming!\n";
-    std::string user_name  = "test_user";
-    std::string password   = "test";
+    // std::string user_name  = "test_user";
+    // std::string password   = "test";
+    std::string user_name = argv[1];
+    std::string password  = argv[2];
     std::string packet_str = Packet::login(user_name, password);
     send(sclient, packet_str.c_str(), packet_str.size(), 0);
 
@@ -121,6 +123,8 @@ int main(int argc, char* argv[])
                     send(sclient, packet_str.c_str(), packet_str.size(), 0);
                 }
             }
+
+            std::cout << "send data:" << std::endl << packet_str << std::endl;
         }
         else
         {

@@ -165,6 +165,7 @@ void* waitConnect(void* arg)
         PlayerSock * new_player = new PlayerSock(csock, user_name);
         new_player->sendData(Packet::rLogin(true, 10000));
         server->hall.push_back(new_player);
+        std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
         // server->rooms[0]->append(csock);
     }
 }
@@ -175,6 +176,7 @@ void* hallThread(void* arg)
 
     while (true)
     {
+        // std::cout << "hall thread run now" << std::endl;
         for (auto it = server->hall.begin(); it != server->hall.end(); )
         {
             std::string packet = (*it)->recvData();
@@ -189,9 +191,8 @@ void* hallThread(void* arg)
                     server->rooms[room_id].append(*it);
                     it = server->hall.erase(it);
                     (*it)->sendData(Packet::rEntry(true, room_id));
+                    std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
                 }
-
-                cout << "Now hall has " << server->hall.size() << " member" << endl;
             }
         }
 
@@ -221,8 +222,8 @@ void* testConnect(void* arg)
                 it = server->hall.erase(it);
             }
         }
-        cout << "Now hall has " << server->hall.size() << " member" << endl;
-        cout << endl;
+        // cout << "Now hall has " << server->hall.size() << " member" << endl;
+        // cout << endl;
 
         // test all sockets connection every 5 seconds
         sleep(5);
@@ -257,9 +258,9 @@ bool Server::init()
 
 void Server::run()
 {
-    // create test connection thread
-    pthread_t test_tid;
-    pthread_create(&test_tid, NULL, testConnect, this);
+    // // create test connection thread
+    // pthread_t test_tid;
+    // pthread_create(&test_tid, NULL, testConnect, this);
 
     // create wait connection thread
     pthread_t wait_tid;
@@ -270,7 +271,8 @@ void Server::run()
 
     void* tret;
     pthread_join(wait_tid, &tret);
-    pthread_join(test_tid, &tret);
+    pthread_join(hall_tid, &tret);
+    // pthread_join(test_tid, &tret);
 }
 
 int main(int argc, char* argv[])
