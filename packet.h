@@ -34,6 +34,10 @@ enum Type
     BEGIN_GAME,
     HALL,
     ROOM,
+
+    LICENSE_PLAYER,
+    LICENSE_PUBLIC,
+    GAME_RESULT,
 };
 
 class Packet
@@ -169,6 +173,45 @@ public:
         root["type"] = ALLIN;
         return root.toStyledString();
     }
+
+    static std::string licensePlayer(int cardNum)
+    {
+        /*
+         * license player
+         * suit : cardNum / 13
+         * suit order : HEARTS DIAMONDS CLUB SPADE
+         * number : cardNum % 13 + 1
+        */
+        Json::Value root;
+        root["type"] = LICENSE_PLAYER;
+        root["card"] = cardNum;
+        return root.toStyledString();
+    }
+
+    static std::string licensePublic(int index, int cardNum)
+    {
+        /*
+         * license public
+         * suit : cardNum / 13
+         * suit order : HEARTS DIAMONDS CLUB SPADE
+         * number : cardNum % 13 + 1
+         * index : the order of the public card(saved in index)
+        */
+        Json::Value root;
+        root["type"] = LICENSE_PUBLIC;
+        root["index"] = index;
+        root["card"] = cardNum;
+        return root.toStyledString();
+    }
+
+    static std::string showResult(Json::Value gameResult)
+    {
+        Json::Value root;
+        root["type"] = GAME_RESULT;
+        root["value"] = gameResult;
+        return root.toStyledString();
+    }
+
 
     /*
      * server packet

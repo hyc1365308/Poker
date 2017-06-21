@@ -140,6 +140,11 @@ struct Card
         out << suit_str << c.num;
         return out;
     }
+
+    int toInt()
+    {
+        return suit * 13 + num - 1;
+    }
 };
 
 #endif

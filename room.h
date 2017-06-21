@@ -68,6 +68,9 @@ public:
         return sock->sendData(packet);
     }
 
+    /*
+     * get a operate from player
+    */
     Json::Value getOperate(Player* player)
     {
         std::cout << "get operation now" << std::endl;
@@ -91,6 +94,41 @@ public:
         std::cout << "get operation done" << std::endl;
 
         return root;
+    }
+
+    /*
+     * send license info to player
+    */
+    void licensePlayer(Player* player, Card & c)
+    {
+        std::cout << "send license info now" << std::endl;
+        PlayerSock * sock = get_player(player);
+        std::cout << "now send message " << sock->get_id() << std::endl;
+        sock->sendData(Packet::licensePlayer(c.toInt()));
+    }
+
+    /*
+     * send public license info to all player
+    */
+    void licensePublic(int index, Card & c)
+    {
+        std::cout << "send public license info now" << std::endl;
+        std::string root = Packet::licensePublic(index, c.toInt());
+        for (auto sock : players){
+            sock->sendData(root);
+        }
+    }
+
+    /*
+     * send game result info to all player
+    */
+    void showResult(Json::Value gameResult)
+    {
+        std::cout << "send game result now" << std::endl;
+        std::string root = Packet::showResult(gameResult);
+        for (auto sock : players){
+            sock->sendData(root);
+        }
     }
 
     PlayerSock* operator[](const int i)

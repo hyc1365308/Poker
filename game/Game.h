@@ -47,7 +47,7 @@ public:
 	void     n_licensePlayer(Player*, Card & , Card & );
 	void     n_licensePublic(int, Card & );
 	void     n_fresh();
-	void     n_showResult();
+	void     n_showResult(Json::Value);
 };
 
 #endif
