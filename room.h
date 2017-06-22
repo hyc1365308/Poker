@@ -115,9 +115,10 @@ public:
     /*
      * broadcast the player's operation
     */
-    Json::Value castOperate(const Player* player, const int operation, const int money = 0)
+    void castOperate(const Player* player, const int operation, const int money_left = 0, const int money_op = 0)
     {
         int player_pos = getPlayerPos(player->_name);
+
     }
 
     /*

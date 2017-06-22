@@ -23,10 +23,10 @@ enum Type
     PREPARE,
     DIS_PREPARE,
     BEGIN,
-    REFUEL,
-    CALL,
-    FOLD,
-    ALLIN,
+    REFUEL,         // 加注
+    CALL,           // 跟注
+    FOLD,           // 盖牌
+    ALLIN,          // 全跟
     REQUSET,
     OPERATE,        // 其他成员的操作，数据包要向所有client发送
     LOGIN_RESULT,
@@ -264,7 +264,7 @@ public:
         root["player_pos"] = player_pos;
         root["player_op"]  = player_op;
         root["money"]      = money;
-        
+
         return root.toStyledString();
     }
 
