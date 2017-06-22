@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <map>
 #include <vector>
+#include <set>
 #include <tuple>
 
 
@@ -34,7 +35,8 @@ private:
     SOCKET listen_sock;         // 监听socket
     sockaddr_in sin;            // 本机地址
 
-    std::vector<PlayerSock*> hall;      // 大厅内的玩家
+    // std::vector<PlayerSock*> hall;      // 大厅内的玩家
+    std::set<PlayerSock*> hall;
     Room rooms[ROOM_NUM];       // 所有房间
 
     char recv_buffer[512];      // receive buffer

@@ -257,7 +257,7 @@ public:
         return root.toStyledString();
     }
 
-    static std::string operate(const int player_pos, const int & player_op, const int money_left = 0, const int money_op)
+    static std::string operate(const int player_pos, const int & player_op, const int money_left = 0, const int money_op = 0)
     {
         /*
          * 用户的操作信息，服务器会将该信息广播给所有client

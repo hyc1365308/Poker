@@ -76,8 +76,10 @@ void Game::init(){
 void Game::blindBet(){
 	cout<<"doing blindBet.....";
 	_presentPlayer->bet(MIN_BET);
+	_room->castOperate(_presentPlayer, REFUEL, _presentPlayer->_presentBet, MIN_BET);
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_presentPlayer->bet(MIN_BET * 2);
+	_room->castOperate(_presentPlayer, REFUEL, _presentPlayer->_presentBet, MIN_BET * 2);
 	_maxBetPlayer = _presentPlayer;
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_maxBet = MIN_BET * 2;

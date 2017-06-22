@@ -6,7 +6,11 @@
 
 #include "server.h"
 
+#include <mutex>
+
 using namespace std;
+
+mutex mtx;
 
 bool Server::verifyUser(std::string & user_name, std::string & password)
 {
@@ -136,16 +140,46 @@ bool Server::loadPlayers(const char* file_name)
 
 bool setTestAlive(const int sockfd)
 {
-    const int keepalive = 1;      // 打开探测
-    const int keepidle  = 60;     // 开始探测前的空闲等待时间
-    const int keepintvl = 10;     // 发送探测分节的时间间隔
-    const int keepcnt   = 3;      // 发送探测分节的次数
+    struct TCP_KEEPALIVE {  
+        u_long onoff;  
+        u_long keepalivetime;  
+        u_long keepaliveinterval;  
+    };
 
-    if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&keepalive, sizeof (keepalive)) < 0)
+    //KeepAlive实现  
+    TCP_KEEPALIVE inKeepAlive = {0}; //输入参数  
+    unsigned long ulInLen = sizeof(TCP_KEEPALIVE);  
+    TCP_KEEPALIVE outKeepAlive = {0}; //输出参数  
+    unsigned long ulOutLen = sizeof(TCP_KEEPALIVE);  
+    unsigned long ulBytesReturn = 0;
+
+    //设置socket的keep alive为5秒，并且发送次数为3次  
+    inKeepAlive.onoff = 1;
+    inKeepAlive.keepaliveinterval = 5000; //两次KeepAlive探测间的时间间隔
+    inKeepAlive.keepalivetime     = 5000; //开始首次KeepAlive探测前的TCP空闭时间
+    if (
+        WSAIoctl((unsigned int)sockfd,  
+        _WSAIOW(IOC_VENDOR,4),
+        (LPVOID)&inKeepAlive, ulInLen,
+        (LPVOID)&outKeepAlive, ulOutLen,  
+        &ulBytesReturn, NULL, NULL) == SOCKET_ERROR
+    )
     {
-        perror("fail to set SO_KEEPALIVE");
-        exit(-1);
+        perror("fail to set test_alive");
+        return false;
     }
+
+    return true;
+    // const int keepalive = 1;      // 打开探测
+    // const int keepidle  = 60;     // 开始探测前的空闲等待时间
+    // const int keepintvl = 10;     // 发送探测分节的时间间隔
+    // const int keepcnt   = 3;      // 发送探测分节的次数
+
+    // if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&keepalive, sizeof (keepalive)) < 0)
+    // {
+    //     perror("fail to set SO_KEEPALIVE");
+    //     exit(-1);
+    // }
     // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPIDLE, (char *) &keepidle, sizeof (keepidle)) < 0)
     // {
     //     perror("fail to set SO_KEEPIDLE");
@@ -225,6 +259,11 @@ void* waitConnect(void* arg)
             continue;
         }
 
+        // if (!setTestAlive(csock))
+        // {
+        //     cout << "set csock test alive wrong" << endl;
+        // }
+
         int money = get<1>(server->players[user_name]);
         cout << "client sock = " << csock << endl;
         PlayerSock * new_player = new PlayerSock(csock, user_name, money);
@@ -235,16 +274,11 @@ void* waitConnect(void* arg)
         {
             cout << "cannot send login result" << endl;
         }
-
-        // std::vector<PlayerTuple> _tmp;
-        // std::string _arr[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
-        // for (int i = 0; i < 6; ++i)
-        // {
-        //     _tmp.push_back(make_tuple(_arr[i], 100, false));
-        // }
-        // flag = new_player->sendData(Packet::room(1, _tmp));
         
-        server->hall.push_back(new_player);
+        mtx.lock();
+        server->hall.insert(new_player);
+        mtx.unlock();
+
         std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
         // server->rooms[0]->append(csock);
     }
@@ -257,8 +291,10 @@ void* hallThread(void* arg)
     while (true)
     {
         // std::cout << "hall thread run now" << std::endl;
-        for (auto it = server->hall.begin(); it != server->hall.end(); )
+
+        for (auto it = server->hall.begin(); it != server->hall.end(); ++it)
         {
+            // cout << "check sock " << (*it) << "'s entry" << endl;
             std::string packet = (*it)->recvData();
             if (packet != "")
             {
@@ -268,14 +304,28 @@ void* hallThread(void* arg)
                 {
                     int room_id = root["room"].asInt();
 
+                    if (room_id < 0 || room_id >= ROOM_NUM)
+                    {
+                        cout << "cannot find room " << room_id << endl;
+                        continue;
+                    }
+
                     // 向房间添加新的成员
                     bool flag = server->rooms[room_id].append(*it);
                     
+                    PlayerSock* old_sock = (*it);
+
                     if (flag)
+                    {
+                        mtx.lock();
+                        cout << "erase " << (*it) << endl;
                         it = server->hall.erase(it);
-                    
-                    (*it)->sendData(Packet::rEntry(true, room_id));
-                    (*it)->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(*it)));
+                        cout << "erase done\n";
+                        mtx.unlock();
+                    }
+
+                    old_sock->sendData(Packet::rEntry(true, room_id));
+                    old_sock->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(old_sock)));
                     std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
                 }
             }
@@ -292,32 +342,35 @@ void* testConnect(void* arg)
     Server* server = (Server*) arg;
     while(true)
     {
+        mtx.lock();
+
         for (auto it = server->hall.begin(); it != server->hall.end(); )
         {
             // sock = *it
             if ((*it)->testConnect())
             {
-                cout << *it << " " << endl;
+                // cout << *it << " " << endl;
                 ++it;
             }
             else
             {
                 // sock has been closed
+                cout << "socket " << *it << " is detected closed" << endl;
                 delete (*it);
                 it = server->hall.erase(it);
             }
         }
-        // cout << "Now hall has " << server->hall.size() << " member" << endl;
-        // cout << endl;
+
+        mtx.unlock();
 
         // test all sockets connection every 5 seconds
-        sleep(5);
+        sleep(10);
     }
 }
 
 void Server::run()
 {
-    // // create test connection thread
+    // create test connection thread
     // pthread_t test_tid;
     // pthread_create(&test_tid, NULL, testConnect, this);
 

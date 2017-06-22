@@ -5,6 +5,8 @@
 #include "packet.h"
 #include "./game/Game.h"
 
+#include <mutex>
+
 const int MAX_PLAYER_NUM = 8;
 
 class Room
@@ -15,6 +17,7 @@ private:
     pthread_t tid_;
     // std::vector<SOCKET> players;
     std::vector<PlayerSock*> players;
+    std::mutex mtx_;
 
     friend void* runRoom(void*);
     void init();
@@ -70,7 +73,13 @@ public:
         }
 
         std::cout << "Room " << id_ << " join a new player" << std::endl;
+        
+        mtx_.lock();
+        std::cout << "Room " << id_ << " push_back " << player->get_id() << std::endl;
         players.push_back(player);
+        std::cout << "push_back done" << std::endl;
+        mtx_.unlock();
+
         return true;
     }
 
@@ -79,14 +88,17 @@ public:
         /*
          * remove a player from this room
         */
+
+        mtx_.lock();
         for (auto it = players.begin(); it != players.end(); ++it)
         {
             if (*it == player)
             {
                 it = players.erase(it);
-                return;
+                break;
             }
         }
+        mtx_.unlock();
     }
 
     /*
