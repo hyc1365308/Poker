@@ -99,6 +99,7 @@ void Game::betTurn(){
 
 		Operate* t = getOperate();
 		t->doIt(_presentPlayer);
+		n_castOperate(_presentPlayer, t);
 		delete t;
 		_presentPlayer->print();
 		if ( _presentPlayer->skip() )
@@ -128,23 +129,19 @@ Operate* Game::getOperate(){
 	Json::Value temp = n_getOperate(_presentPlayer);
 	if (temp["type"] == FOLD){
 		cout<<"done"<<endl;
-		n_sendOperate(temp, _presentPlayer->_name);
 		return new Fold();
 	}
 	if (temp["type"] == ALLIN){
 		cout<<"done"<<endl;
-		n_sendOperate(temp, _presentPlayer->_name);
 		return new Allin();
 	}
 	if (temp["type"] == CALL){
 		cout<<"done"<<endl;
-		n_sendOperate(temp, _presentPlayer->_name);
-		return new Bet(_maxBet - _presentPlayer->_presentBet);
+		return new Call(_maxBet - _presentPlayer->_presentBet);
 	}
 	if (temp["type"] == REFUEL){
 		cout<<"done"<<endl;
-		n_sendOperate(temp, _presentPlayer->_name);
-		return new Bet(temp["money"].asInt());
+		return new Refuel(temp["money"].asInt());
 	}
 	cout<<"invalid operate!"<<endl;
 }
@@ -383,12 +380,12 @@ void Game::showResult(){
 
 Json::Value Game::n_getOperate(Player* p){
 	//get a operate from Player p's socket and return the operate
-	return _room->getOperate(p);
+	return _room->getOperate(p, _maxBet);
 }
 
-void Game::n_sendOperate(Json::Value value, string name){
+void Game::n_castOperate(Player* p, Operate* op){
 	//send bet operate to all players
-	return _room->sendOperate(value, name);
+	return _room->castOperate(p, op->getType(), p->_presentBet, op->getMoney());
 }
 
 void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){

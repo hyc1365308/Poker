@@ -44,7 +44,7 @@ public:
 
 	//network interfaces;
 	Json::Value n_getOperate(Player*);
-	void     n_sendOperate(Json::Value, string);
+	void     n_castOperate(Player* , Operate* );
 	void     n_licensePlayer(Player*, Card & , Card & );
 	void     n_licensePublic(int, Card & );
 	void     n_fresh();
