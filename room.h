@@ -117,7 +117,7 @@ public:
     */
     void castOperate(const Player* player, const int operation, const int money_left = 0, const int money_op = 0)
     {
-        int player_pos = getPlayerPos(player->_name);
+        int player_pos = getPlayerPos(player->getName());
 
     }
 
@@ -177,7 +177,7 @@ public:
 
     PlayerSock* get_player(const Player* player)
     {
-        std::string player_name = player->_name;
+        std::string player_name = player->getName();
         // int player_num = -1;
         for (int i = 0; i < players.size(); ++i)
         {

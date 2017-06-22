@@ -24,21 +24,19 @@ void Player::print(){
 
 void Fold::doIt(Player* p){
 	printf("FOLD\n");
-	p->_fold = true;
+	p->setFold();
 }
 
 void Allin::doIt(Player* p){
 	printf("ALLIN!\n");
-	_money = p->_money;
-	p->_presentBet += p->_money;
-	p->_money = 0;
-	p->_allin = true;
+	_money = p->getMoney();
+	p->bet(_money);
+	p->setAllin();
 }
 
 void Bet::doIt(Player* p){
 	printf("Bet %d!\n", _money);
-	p->_presentBet += _money;
-	p->_money -= _money;
+	p->bet(_money);
 }
 
 int Fold::getType(){

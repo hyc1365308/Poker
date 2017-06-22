@@ -16,7 +16,6 @@ const int MIN_BET = 100;
 class Room;
 
 class Game{
-public:
 	Player* _banker;
 	Player* _presentPlayer;
 	Player* _maxBetPlayer;
@@ -29,10 +28,8 @@ public:
 
 	int     _maxBet;
 	int     _playerCount;
-	Game(std::vector<Player*> v, Room* r);
 	void blindBet();
 	void init();
-	void start();
 	void betTurn();
 	void lcsPlayer();
 	void lcsPublic(int);
@@ -49,6 +46,9 @@ public:
 	void     n_licensePublic(int, Card & );
 	void     n_fresh();
 	void     n_showResult(Json::Value);
+public:
+	Game(std::vector<Player*> v, Room* r);
+	void start();
 };
 
 #endif

@@ -16,8 +16,7 @@ using std::string;
 class Operate;
 
 class Player{
-	friend class Operate;
-public:
+	friend class Game;
 	string _name;
 	int    _money;
 	int    _presentBet;
@@ -31,16 +30,21 @@ public:
 
 	Player* _lastPlayer;
 	Player* _nextPlayer;
-	Player(string name, int money, Player* lastPlayer = NULL, Player* nextPlayer = NULL):
-		 _name(name), _money(money), _lastPlayer(lastPlayer), _nextPlayer(nextPlayer){
+	void license(Card cd1, Card cd2);
+public:
+	void print();
+	Player(string name, int money):
+		 _name(name), _money(money){
 
 	}
-	void bet(int money);
 	bool skip(){
 		return _fold || _allin;
 	}
-	void license(Card cd1, Card cd2);
-	void print();
+	void bet(int money);
+	string getName() const{ return _name; }
+	int getMoney() const{ return _money; }
+	void setFold() { _fold = true;}
+	void setAllin() { _allin = true;}
 };
 
 class Operate{
