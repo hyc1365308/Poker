@@ -7,6 +7,7 @@
 #define GAME_H
 
 #include "Player.h"
+#include "Operate.h"
 #include "Card.h"
 #include "../room.h"
 #include <vector>

@@ -6,7 +6,9 @@
 #include "compare.cpp"
 
 
-using namespace std;
+using std::cout;
+using std::endl;
+using std::string;
 
 Game::Game(std::vector<Player*> v, Room* r): _banker(v[0]), _presentPlayer(v[0]), _room(r){
 	int length = v.size();
@@ -15,11 +17,10 @@ Game::Game(std::vector<Player*> v, Room* r): _banker(v[0]), _presentPlayer(v[0])
 		v[i]->_lastPlayer = v[(i + length - 1) % length];
 	}
 	cout<<"init end"<<endl;
-	for (int i = 0; i < length; i++){
-		cout<<v[i]->_nextPlayer->_name<<endl;
-		cout<<v[i]->_lastPlayer->_name<<endl;
-	}
-
+	//for (int i = 0; i < length; i++){
+	//	cout<<v[i]->_nextPlayer->_name<<endl;
+	//	cout<<v[i]->_lastPlayer->_name<<endl;
+	//}
 	cout << "room id is " << _room->get_id() << endl;
 }
 
@@ -73,6 +74,7 @@ void Game::init(){
 }
 
 //this func will init _maxBetPlayer & _maxBet
+//and then do blindBet
 void Game::blindBet(){
 	cout<<"doing blindBet.....";
 	_presentPlayer->bet(MIN_BET);
@@ -84,6 +86,8 @@ void Game::blindBet(){
 	cout<<"done"<<endl;
 }
 
+// The main process of the game
+// Do a bet turn
 void Game::betTurn(){
 	cout<<"doing betTurn.....";
 	do{
@@ -113,9 +117,11 @@ void Game::betTurn(){
 	cout<<"done"<<endl;
 }
 
+// Get a operate from the player: _presentPlayer
+// And return the operate
 Operate* Game::getOperate(){
 	cout<<"ready for operate..."<<endl;
-	//use a naive first
+	//use a naive implementation first
 	//int a,b;
 	//scanf("%d %d", &a, &b);
 	//switch(a){
@@ -146,6 +152,8 @@ Operate* Game::getOperate(){
 	cout<<"invalid operate!"<<endl;
 }
 
+// Shuffle the cards before game start.
+//
 void Game::cardShuffle(){
 	_cardIndex = 0;
 	int temp[52];
@@ -159,6 +167,9 @@ void Game::cardShuffle(){
 	}
 }
 
+// license 2 cards to every player
+// send license info to every player
+//
 void Game::lcsPlayer(){
 	cout<<"doing lcsPlayer...";
 	Player* p = _presentPlayer;
@@ -171,6 +182,9 @@ void Game::lcsPlayer(){
 	cout<<"done"<<endl;
 }
 
+// license public card with index i
+// and broadcast the license infomation
+//
 void Game::lcsPublic(int i){
 	cout<<"doing lcsPublic...";
 	_publicCard[i] = _cardList[_cardIndex];
@@ -179,6 +193,9 @@ void Game::lcsPublic(int i){
 	cout<<"done"<<endl;
 }
 
+// calculate the pattern for every player
+// the results are saved in p->_pattern
+//
 void Game::calcPattern(){
 	cout<<"calculating pattern...";
 	Card temp[7];
@@ -196,16 +213,25 @@ void Game::calcPattern(){
 	cout<<"done"<<endl;
 }
 
+// calculate the game result based on _pattern, _fold, _allin of every player
+// the results are saved in p->_gameResult
+//
 void Game::calcResult(){
 	//init _gameResult and _mark
 	Player* p = _presentPlayer;
 	do{
 		p->_mark = true;
 		p->_money += p->_presentBet;
-		//p->_gameResult = p->_presentBet;
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
 
+	// First find allin player in every loop
+	// Ignore all players with _presentBet = 0
+	// If there exists players already allin, 
+	//    the betMoney in this loop is the lowest _presentBet * _playerCount + money of fold players
+	// If not, the betMoney in this loop is all the rest money
+	// Calculate winners, and the betMoney is divided equally to them( add to Player->_money)
+	// The money divided this loop will be deducted from Player->_presentBet
 	while(true){
 		cout<<"flag1"<<endl;
 		p = _presentPlayer;
@@ -213,7 +239,7 @@ void Game::calcResult(){
 		int allinMoney = 0;
 		//find allin player
 		do{
-			//the allin player with lowest bet
+			//find the allin player with lowest bet
 			if ((p->_allin) && (p->_presentBet != 0)){
 				if ((allin == NULL) || (p->_presentBet < allinMoney)){
 					allin = p;
@@ -228,13 +254,14 @@ void Game::calcResult(){
 		if (allin == NULL){
 			cout<<"No allin"<<endl;
 			//calculate money in this circle
-			//calculate the biggest pattern and count
+			//calculate the biggest pattern and count the winner
 			int moneyThisCircle = 0;
 			Pattern* biggestPattern = NULL;
 			int winnerCount = 0;
 
 			p = _presentPlayer;
 			do{
+				//ignore players with _presentBet = 0
 				if (p->_presentBet == 0){
 					p->_mark = false;
 					p->print();
@@ -242,11 +269,13 @@ void Game::calcResult(){
 					continue;
 				}
 
+				// sum the money in this loop
 				moneyThisCircle += p->_presentBet;
 				p->_money -= p->_presentBet;
 				p->_gameResult -= p->_presentBet;
 				p->_presentBet = 0;
 
+				//ignore fold players
 				if (p->_fold){
 					p->_mark = false;
 					p->print();
@@ -266,6 +295,8 @@ void Game::calcResult(){
 			//update game result
 			cout<<"the biggest pattern is :"<< (*biggestPattern)<<endl;
 			int moneyPerWinner = moneyThisCircle / winnerCount;
+
+			// If a player is marked, he will not attend the rest game, including pattern comparation.
 			p = _presentPlayer;
 			do{
 				if ( !p->_mark ){
@@ -281,7 +312,6 @@ void Game::calcResult(){
 				p = p->_nextPlayer;
 			}while(p != _presentPlayer);
 
-			//break
 			break;
 		}
 		cout<<"flag3"<<endl;
@@ -297,6 +327,7 @@ void Game::calcResult(){
 		p = allin;
 		cout<<"allin"<<endl;
 		do{
+			//ignore players with _presentBet = 0
 			if (p->_presentBet == 0){
 				p->_mark = false;
 				p->print();
@@ -304,6 +335,7 @@ void Game::calcResult(){
 				continue;
 			}
 
+			// sum the money in this loop
 			if (p->_fold){
 				moneyThisCircle += p->_presentBet;
 				p->_money -= p->_presentBet;
@@ -336,6 +368,7 @@ void Game::calcResult(){
 		int moneyPerWinner = moneyThisCircle / winnerCount;
 		p = allin;
 		cout<<"the biggest pattern is :"<< (*biggestPattern)<<endl;
+		// If a player is marked, he will not attend the rest game, including pattern comparation.
 		do{
 			if ( !p->_mark ){
 				p = p->_nextPlayer;
@@ -352,6 +385,8 @@ void Game::calcResult(){
 	}
 }
 
+// show the game result
+// send the info to all players
 void Game::showResult(){
 	Json::Value root;
 	Json::Value json_player;
@@ -378,6 +413,7 @@ void Game::showResult(){
 	n_showResult(root);
 }
 
+//-------------------------- network interfaces -----------------------------------
 Json::Value Game::n_getOperate(Player* p){
 	//get a operate from Player p's socket and return the operate
 	return _room->getOperate(p, _maxBet);
@@ -400,6 +436,7 @@ void Game::n_licensePublic(int index, Card & card){
 }
 
 void Game::n_fresh(){
+	//TODO
 	//tell all Players about bet conditions of all players(stored in Player* _presentPlayer and other Player*)
 	//int    _money
 	//int    _presentBet
