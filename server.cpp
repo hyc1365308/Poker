@@ -14,36 +14,46 @@
 #include <tuple>
 
 using namespace std;
-// using std::cout;
-// using std::endl;
-// using std::string;
 
+const int ROOM_NUM = 4;
+
+/*
+ * 存储所有玩家信息的文件路径
+ * 文件格式：
+ *      玩家个数
+ *      玩家1：id   密码  金钱数
+ *      玩家2：id   密码  金钱数
+ *      ……
+*/
 const char* player_file_path = "./data/player_info.txt";
+const char* server_info_file_path = "./data/server_info.txt";
 
+// 玩家信息，只包括密码与钱数
 typedef std::tuple<std::string, int> PlayerInfo;   // password money
 
 class Server
 {
 private:
-    std::map<std::string, PlayerInfo> players;    // 所有玩家的信息，id作为key，money与密码为键值
+    std::map<std::string, PlayerInfo> players;    // 所有玩家的信息，id作为键，money与密码为键值
 
-    const int listen_port;
-    const int game_port;
-    SOCKET listen_sock;
-    sockaddr_in sin;
+    const int listen_port;      // 监听端口
+    const int game_port;        // 游戏端口
+    SOCKET listen_sock;         // 监听socket
+    sockaddr_in sin;            // 本机地址
 
-    std::vector<PlayerSock*> hall;
-    Room rooms[ROOM_NUM];       // ROOM_NUM rooms
+    std::vector<PlayerSock*> hall;      // 大厅内的玩家
+    Room rooms[ROOM_NUM];       // 所有房间
 
     char recv_buffer[512];      // receive buffer
     char send_buffer[512];      // send buffer
 
-    friend void* waitConnect(void*);
-    friend void* testConnect(void*);
-    friend void* hallThread(void*);
-    bool init();
+    friend void* waitConnect(void*);        // 监听客户端连接函数
+    friend void* testConnect(void*);        // 检测连接是否断开
+    friend void* hallThread(void*);         // 大厅线程
 
-    void loadMoney(const char * file_name);
+    bool init();        // 初始化socket连接，加载用户信息与服务器信息
+
+    void loadMoney(const char * file_name); // 加载用户信息
 
     bool verifyUser(std::string & user_name, std::string & password)
     {
@@ -189,6 +199,9 @@ void* waitConnect(void* arg)
         if(!Packet::decode(recv_buffer, root))
         {
             cout << "Get a bad packet, return" << endl;
+            cout << "Packet content:" << endl;
+            cout << recv_buffer << endl;
+            cout << "...\n";
             continue;
         }
 
@@ -207,6 +220,8 @@ void* waitConnect(void* arg)
         // verify players name & password
         if (!server->verifyUser(user_name, password))
         {
+            PlayerSock _player(csock, user_name, 0);
+            _player.sendData(Packet::rLogin(false));
             continue;
         }
 
@@ -220,6 +235,14 @@ void* waitConnect(void* arg)
         {
             cout << "cannot send login result" << endl;
         }
+
+        // std::vector<PlayerTuple> _tmp;
+        // std::string _arr[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
+        // for (int i = 0; i < 6; ++i)
+        // {
+        //     _tmp.push_back(make_tuple(_arr[i], 100, false));
+        // }
+        // flag = new_player->sendData(Packet::room(1, _tmp));
         
         server->hall.push_back(new_player);
         std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
@@ -248,6 +271,7 @@ void* hallThread(void* arg)
                     server->rooms[room_id].append(*it);
                     it = server->hall.erase(it);
                     (*it)->sendData(Packet::rEntry(true, room_id));
+                    (*it)->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(*it)));
                     std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
                 }
             }
@@ -318,8 +342,8 @@ bool Server::init()
 void Server::run()
 {
     // create test connection thread
-    pthread_t test_tid;
-    pthread_create(&test_tid, NULL, testConnect, this);
+    // pthread_t test_tid;
+    // pthread_create(&test_tid, NULL, testConnect, this);
 
     // create wait connection thread
     pthread_t wait_tid;
@@ -331,7 +355,7 @@ void Server::run()
     void* tret;
     pthread_join(wait_tid, &tret);
     pthread_join(hall_tid, &tret);
-    pthread_join(test_tid, &tret);
+    // pthread_join(test_tid, &tret);
 }
 
 int main(int argc, char* argv[])

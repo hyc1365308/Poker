@@ -5,6 +5,8 @@
 #include "packet.h"
 #include "./game/Game.h"
 
+const int MAX_PLAYER_NUM = 8;
+
 class Room
 {
 private:

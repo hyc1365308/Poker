@@ -7,9 +7,6 @@
 
 #include "packet.h"
 
-const int ROOM_NUM = 4;
-const int MAX_PLAYER_NUM = 8;
-
 class PlayerSock
 {
 private:
@@ -47,7 +44,7 @@ public:
 
     bool sendData(std::string data)
     {
-        // std::cout << std::endl << "send player " << id << " " << std::endl << data << std::endl;
+        std::cout << std::endl << "send " << id << std::endl << data << std::endl << std::endl;
         // std::cout << "now send data" << std::endl;
 
         if (send(sock, data.c_str(), data.size() + 1, 0) <= 0)

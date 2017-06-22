@@ -81,7 +81,7 @@ public:
         Json::Reader reader;
         Json::Value root;
 
-        if (reader.parse(packet, root) && !root["type"].isNull() && root["type"] == ROOM)
+        if (reader.parse(packet, root) && root["type"] == ROOM)
         {
             Json::Value seat_array = root["seat"];
             Json::Value item;
@@ -201,8 +201,8 @@ public:
     static std::string testAlive()
     {
         Json::Value root;
-        // root["type"] = TEST_ALIVE;
-        root["type"] = INVALID;
+        root["type"] = TEST_ALIVE;
+        // root["type"] = INVALID;
         return root.toStyledString();
     }
 
@@ -290,7 +290,14 @@ public:
     //     return root.toStyledString();
     // }
 
-    static std::string room(const int room_id, const int location, std::vector<PlayerTuple> & players)
+    static std::string room(const int room_id, std::vector<PlayerTuple> && players)
+    {
+        std::vector<PlayerTuple> _tmp = players;
+        return room(room_id, _tmp);
+    }
+
+
+    static std::string room(const int room_id, std::vector<PlayerTuple> & players)
     {
         /*
          * room information
@@ -305,7 +312,8 @@ public:
             PlayerTuple & player = players[i];
             item["id"] = std::get<0>(player);
             item["money"] = std::get<1>(player);
-            item["is_in"] = (location == i) ? 1 : 0;
+            item["is_in"] = std::get<2>(player);
+            // item["is_in"] = (location == i) ? 1 : 0;
             seat_array.append(item);
         }
         root["seat"] = seat_array;

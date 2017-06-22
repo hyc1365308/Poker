@@ -23,3 +23,7 @@ client: json
 
 data: 
 	$(CXX) $(JSON) data.cpp -o data
+
+clean:
+	cd game && del Player.o
+	cd game && del Game.o
