@@ -7,6 +7,8 @@
 
 #include "packet.h"
 
+#define BUFFER_SIZE 512
+
 class PlayerSock
 {
 private:
@@ -15,8 +17,8 @@ private:
     // sockaddr_in addr;        // address, in case of need
     const SOCKET sock;
 
-    char recv_buffer[512];      // receive buffer
-    char send_buffer[512];      // send buffer
+    char recv_buffer[BUFFER_SIZE];      // receive buffer
+    char send_buffer[BUFFER_SIZE];      // send buffer
 
 public:
     PlayerSock(const SOCKET sock, const std::string & id, const int money) : sock(sock), id(id), money(money)
@@ -55,7 +57,7 @@ public:
 
     std::string recvData()
     {
-        int ret = recv(sock, recv_buffer, 512, 0);
+        int ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
         if(ret > 0)
         {
             recv_buffer[ret] = 0x00;

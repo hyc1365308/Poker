@@ -53,7 +53,6 @@ void Game::start(){
 	printf("CalcResult\n");
 	calcResult();
 	showResult();
-	n_showResult();
 }
 
 //init all bet of Players, _playerCount
@@ -353,6 +352,8 @@ void Game::calcResult(){
 }
 
 void Game::showResult(){
+	Json::Value root;
+	Json::Value json_player;
 	Player* p = _presentPlayer;
 	do{
 		//p->_money += p->_gameResult;
@@ -362,8 +363,18 @@ void Game::showResult(){
 		else
 			cout<<"The player has folded"<<endl;
 
+		json_player["name"] = p->_name;
+		json_player["money"] = p->_money;
+		json_player["result"] = p->_gameResult;
+		json_player["fold"] = p->_fold;
+		if ( !p->_fold )
+			json_player["pattern"] = p->_pattern.toJsonObject();
+		else
+			json_player["pattern"] = Pattern::foldPattern();
+		root.append(json_player);
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+	n_showResult(root);
 }
 
 Json::Value Game::n_getOperate(Player* p){
@@ -373,10 +384,13 @@ Json::Value Game::n_getOperate(Player* p){
 
 void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){
 	//tell Player p :he was licensed 2 Card: c1 & c2
+	_room->licensePlayer(p, c1);
+	_room->licensePlayer(p, c2);
 }
 
 void Game::n_licensePublic(int index, Card & card){
 	//tell all Players about first index public card(stored in _publicCard[5])
+	_room->licensePublic(index, card);
 }
 
 void Game::n_fresh(){
@@ -385,10 +399,11 @@ void Game::n_fresh(){
 	//int    _presentBet
 }
 
-void Game::n_showResult(){
+void Game::n_showResult(Json::Value gameResult){
 	//tell all Players about game result
 	//int    _money
 	//int    _gameResult(record the money changes in this game)
+	_room->showResult(gameResult);
 }
 
 

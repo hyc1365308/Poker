@@ -20,6 +20,30 @@ private:
     void init();
     void exit();
 
+    bool send(const int i, const std::string packet)
+    {
+        return players[i]->sendData(packet);
+    }
+
+    bool send(PlayerSock* sock, const std::string packet)
+    {
+        return sock->sendData(packet);
+    }
+
+    int getPlayerPos(const std::string player_id)
+    {
+        for (int i = 0; i < players.size(); ++i)
+        {
+            if (player_id == players[i]->get_id())
+            {
+                return i;
+            }
+        }
+
+        std::cout << "get player id worng" << std::endl;
+        return -1;
+    }
+
 public:
     Room(const int id = next_id++) : id(id)
     {
@@ -60,16 +84,9 @@ public:
         }
     }
 
-    bool send(const int i, const std::string packet)
-    {
-        return players[i]->sendData(packet);
-    }
-
-    bool send(PlayerSock* sock, const std::string packet)
-    {
-        return sock->sendData(packet);
-    }
-
+    /*
+     * get a operate from player
+    */
     Json::Value getOperate(Player* player)
     {
         std::cout << "get operation now" << std::endl;
@@ -93,6 +110,49 @@ public:
         std::cout << "get operation done" << std::endl;
 
         return root;
+    }
+
+    /*
+     * broadcast the player's operation
+    */
+    Json::Value castOperate(const Player* player, const int operation, const int money = 0)
+    {
+        int player_pos = getPlayerPos(player->_name);
+    }
+
+    /*
+     * send license info to player
+    */
+    void licensePlayer(Player* player, Card & c)
+    {
+        std::cout << "send license info now" << std::endl;
+        PlayerSock * sock = get_player(player);
+        std::cout << "now send message " << sock->get_id() << std::endl;
+        sock->sendData(Packet::licensePlayer(c.toInt()));
+    }
+
+    /*
+     * send public license info to all player
+    */
+    void licensePublic(int index, Card & c)
+    {
+        std::cout << "send public license info now" << std::endl;
+        std::string root = Packet::licensePublic(index, c.toInt());
+        for (auto sock : players){
+            sock->sendData(root);
+        }
+    }
+
+    /*
+     * send game result info to all player
+    */
+    void showResult(Json::Value gameResult)
+    {
+        std::cout << "send game result now" << std::endl;
+        std::string root = Packet::showResult(gameResult);
+        for (auto sock : players){
+            sock->sendData(root);
+        }
     }
 
     PlayerSock* operator[](const int i)

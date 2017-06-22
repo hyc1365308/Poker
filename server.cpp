@@ -4,149 +4,117 @@
  * Function :   Server class
 */
 
-#include "room.h"
-
-#include <iostream>
-#include <fstream>
-#include <stdio.h>
-#include <map>
-#include <vector>
-#include <tuple>
+#include "server.h"
 
 using namespace std;
 
-const int ROOM_NUM = 4;
-
-/*
- * 存储所有玩家信息的文件路径
- * 文件格式：
- *      玩家个数
- *      玩家1：id   密码  金钱数
- *      玩家2：id   密码  金钱数
- *      ……
-*/
-const char* player_file_path = "./data/player_info.txt";
-const char* server_info_file_path = "./data/server_info.txt";
-
-// 玩家信息，只包括密码与钱数
-typedef std::tuple<std::string, int> PlayerInfo;   // password money
-
-class Server
+bool Server::verifyUser(std::string & user_name, std::string & password)
 {
-private:
-    std::map<std::string, PlayerInfo> players;    // 所有玩家的信息，id作为键，money与密码为键值
+    /*
+     * 验证用户是否在数据库中
+    */
 
-    const int listen_port;      // 监听端口
-    const int game_port;        // 游戏端口
-    SOCKET listen_sock;         // 监听socket
-    sockaddr_in sin;            // 本机地址
+    cout << "verify user" << endl;
+    cout << "\tusername: " <<user_name << endl;
+    cout << "\tpassword: " << password << endl;
+    cout << endl;
 
-    std::vector<PlayerSock*> hall;      // 大厅内的玩家
-    Room rooms[ROOM_NUM];       // 所有房间
-
-    char recv_buffer[512];      // receive buffer
-    char send_buffer[512];      // send buffer
-
-    friend void* waitConnect(void*);        // 监听客户端连接函数
-    friend void* testConnect(void*);        // 检测连接是否断开
-    friend void* hallThread(void*);         // 大厅线程
-
-    bool init();        // 初始化socket连接，加载用户信息与服务器信息
-
-    void loadMoney(const char * file_name); // 加载用户信息
-
-    bool verifyUser(std::string & user_name, std::string & password)
+    if (players.find(user_name) == players.end())
     {
-        cout << "verify user" << endl;
-        cout << "username: " <<user_name << endl;
-        cout << "password: " << password << endl;
-        cout << endl;
-
-        if (players.find(user_name) == players.end())
+        cout << "user not in the name list" << endl;
+        cout << "user name: " << user_name << endl;
+        return false;
+    }
+    else
+    {
+        if (get<0>(players[user_name]) != password)
         {
-            cout << "user not in the name list" << endl;
-            cout << "user name: " << user_name << endl;
+            cout << "password is incorrect" << endl;
+            cout << "id: " << user_name << ", pass: " << password << endl;
             return false;
         }
-        else
-        {
-            if (get<0>(players[user_name]) != password)
-            {
-                cout << "password is incorrect" << endl;
-                cout << "id: " << user_name << ", pass: " << password << endl;
-                return false;
-            }
-        }
-
-        return true;
     }
 
+    return true;
+}
 
-public:
-    Server(const int listen_port = 8900, const int game_port = 8901) : listen_port(listen_port), game_port(game_port)
+bool Server::bindPort()
+{
+    /*
+     * 绑定端口，端口为listen_port
+    */
+    sin.sin_family = AF_INET;
+    sin.sin_port = htons(listen_port);
+    sin.sin_addr.S_un.S_addr = INADDR_ANY;
+    if(bind(listen_sock, (LPSOCKADDR)&sin, sizeof(sin)) == SOCKET_ERROR)
     {
-        init();
-        bindPort();
-        listenClients();
-        run();
+        cout << "Bind port " << listen_port << " error!!!" << endl;
+        return false;
     }
+    return true;
+}
 
-    ~Server()
+bool Server::listenClients()
+{
+    if(listen(listen_sock, 5) == SOCKET_ERROR)
     {
-        close();
+        cout << "Listen error !!!" << endl;
+        return false;
     }
 
-    bool bindPort()
+    return true;
+}
+
+bool Server::acceptConnect(SOCKET & sClient)
+{
+    /*
+     * 接收一个连接
+    */
+
+    sockaddr_in remoteAddr;
+    int nAddrlen = sizeof(remoteAddr);
+
+    printf("\nWaiting for connecting...\r\n");
+    sClient = accept(listen_sock, (SOCKADDR *)&remoteAddr, &nAddrlen);
+
+    if(sClient == INVALID_SOCKET)
     {
-        sin.sin_family = AF_INET;
-        sin.sin_port = htons(listen_port);
-        sin.sin_addr.S_un.S_addr = INADDR_ANY;
-        if(bind(listen_sock, (LPSOCKADDR)&sin, sizeof(sin)) == SOCKET_ERROR)
-        {
-            cout << "Bind port " << listen_port << " error!!!" << endl;
-            return false;
-        }
-        return true;
+        printf("Accept error !\r\n");
+        return false;
     }
 
-    bool listenClients()
+    printf("Connect a client %s:%d\r\n", inet_ntoa(remoteAddr.sin_addr), remoteAddr.sin_port);
+    
+    return true;
+}
+
+bool Server::initSocket()
+{
+    // init buffer
+    memset(recv_buffer, '\0', 512);
+    memset(send_buffer, '\0', 512);
+
+    // init WSA
+    WORD sockVersion = MAKEWORD(2,2);
+    WSADATA wsaData;
+    if(WSAStartup(sockVersion, &wsaData)!=0)
     {
-        if(listen(listen_sock, 5) == SOCKET_ERROR)
-        {
-            cout << "Listen error !!!" << endl;
-            return false;
-        }
-        return true;
+        cout << "Init WSA incorrect!!!" << endl;
+        return false;
     }
 
-    bool acceptConnect(SOCKET & sClient)
+    // create socket
+    listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(listen_sock == INVALID_SOCKET)
     {
-        // SOCKET sClient;
-        sockaddr_in remoteAddr;
-        int nAddrlen = sizeof(remoteAddr);
-
-        printf("\nWaiting for connecting...\r\n");
-        sClient = accept(listen_sock, (SOCKADDR *)&remoteAddr, &nAddrlen);
-
-        if(sClient == INVALID_SOCKET)
-        {
-            printf("Accept error !\r\n");
-            return false;
-        }
-        printf("Connect a client %s:%d\r\n", inet_ntoa(remoteAddr.sin_addr), remoteAddr.sin_port);
-        return true;
+        cout << "Create socket error!!!" << endl;
+        return false;
     }
 
-    void close()
-    {
-        closesocket(listen_sock);
-        WSACleanup();
-    }
+    return true;
+}
 
-    void run();
-};
-
-void Server::loadMoney(const char* file_name)
+bool Server::loadPlayers(const char* file_name)
 {
     std::ifstream fin(file_name);
     int num;        // 玩家个数
@@ -154,7 +122,7 @@ void Server::loadMoney(const char* file_name)
     std::string id, password;
     int money;
     cout << endl << "Read players data" << endl;
-    printf("Num     id     password    money\n");
+    printf("Num     id     password     money\n");
     for (int i = 0; i < num; ++i)
     {
         fin >> id >> password >> money;
@@ -162,6 +130,37 @@ void Server::loadMoney(const char* file_name)
         printf("%3d %8s %12s %7d\n", i, id.c_str(), password.c_str(), money);
     }
     fin.close();
+
+    return true;
+}
+
+bool setTestAlive(const int sockfd)
+{
+    const int keepalive = 1;      // 打开探测
+    const int keepidle  = 60;     // 开始探测前的空闲等待时间
+    const int keepintvl = 10;     // 发送探测分节的时间间隔
+    const int keepcnt   = 3;      // 发送探测分节的次数
+
+    if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&keepalive, sizeof (keepalive)) < 0)
+    {
+        perror("fail to set SO_KEEPALIVE");
+        exit(-1);
+    }
+    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPIDLE, (char *) &keepidle, sizeof (keepidle)) < 0)
+    // {
+    //     perror("fail to set SO_KEEPIDLE");
+    //     exit(-1);
+    // }
+    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPINTVL, (char *)&keepintvl, sizeof (keepintvl)) < 0)
+    // {
+    //     perror("fail to set SO_KEEPINTVL");
+    //     exit(-1);
+    // }
+    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPCNT, (char *)&keepcnt, sizeof (keepcnt)) < 0)
+    // {
+    //     perror("fail to set SO_KEEPALIVE");
+    //     exit(-1);
+    // }
 }
 
 void* waitConnect(void* arg)
@@ -178,6 +177,7 @@ void* waitConnect(void* arg)
             continue;
         }
 
+        // 设置csock为非阻塞模式
         unsigned long ul = 1;
         int flags = ioctlsocket(csock, FIONBIO, (unsigned long *)&ul);
         if(flags == SOCKET_ERROR)
@@ -311,37 +311,9 @@ void* testConnect(void* arg)
     }
 }
 
-bool Server::init()
-{
-    // init buffer
-    memset(recv_buffer, '\0', 512);
-    memset(send_buffer, '\0', 512);
-
-    // init WSA
-    WORD sockVersion = MAKEWORD(2,2);
-    WSADATA wsaData;
-    if(WSAStartup(sockVersion, &wsaData)!=0)
-    {
-        cout << "Init WSA incorrect!!!" << endl;
-        return false;
-    }
-
-    // create socket
-    listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(listen_sock == INVALID_SOCKET)
-    {
-        cout << "Create socket error!!!" << endl;
-        return false;
-    }
-
-    loadMoney(player_file_path);
-
-    return true;
-}
-
 void Server::run()
 {
-    // create test connection thread
+    // // create test connection thread
     // pthread_t test_tid;
     // pthread_create(&test_tid, NULL, testConnect, this);
 
@@ -361,4 +333,5 @@ void Server::run()
 int main(int argc, char* argv[])
 {
     Server server;
+    server.run();
 }

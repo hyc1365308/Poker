@@ -28,6 +28,7 @@ enum Type
     FOLD,
     ALLIN,
     REQUSET,
+    OPERATE,        // 其他成员的操作，数据包要向所有client发送
     LOGIN_RESULT,
     ENTRY_RESULT,
     PREPARE_RESULT,
@@ -35,6 +36,10 @@ enum Type
     BEGIN_GAME,
     HALL,
     ROOM,
+
+    LICENSE_PLAYER,
+    LICENSE_PUBLIC,
+    GAME_RESULT,
 };
 
 class Packet
@@ -195,6 +200,45 @@ public:
         return root.toStyledString();
     }
 
+    static std::string licensePlayer(int cardNum)
+    {
+        /*
+         * license player
+         * suit : cardNum / 13
+         * suit order : HEARTS DIAMONDS CLUB SPADE
+         * number : cardNum % 13 + 1
+        */
+        Json::Value root;
+        root["type"] = LICENSE_PLAYER;
+        root["card"] = cardNum;
+        return root.toStyledString();
+    }
+
+    static std::string licensePublic(int index, int cardNum)
+    {
+        /*
+         * license public
+         * suit : cardNum / 13
+         * suit order : HEARTS DIAMONDS CLUB SPADE
+         * number : cardNum % 13 + 1
+         * index : the order of the public card(saved in index)
+        */
+        Json::Value root;
+        root["type"] = LICENSE_PUBLIC;
+        root["index"] = index;
+        root["card"] = cardNum;
+        return root.toStyledString();
+    }
+
+    static std::string showResult(Json::Value gameResult)
+    {
+        Json::Value root;
+        root["type"] = GAME_RESULT;
+        root["value"] = gameResult;
+        return root.toStyledString();
+    }
+
+
     /*
      * server packet
     */
@@ -210,6 +254,17 @@ public:
     {
         Json::Value root;
         root["type"] = REQUSET;
+        return root.toStyledString();
+    }
+
+    static std::string operate(const int player_pos, const int & player_op, const int money = 0)
+    {
+        Json::Value root;
+        root["type"] = OPERATE;
+        root["player_pos"] = player_pos;
+        root["player_op"]  = player_op;
+        root["money"]      = money;
+        
         return root.toStyledString();
     }
 

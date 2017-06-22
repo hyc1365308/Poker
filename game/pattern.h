@@ -8,6 +8,7 @@
 #define PATTERN_H
 
 #include "card.h"
+#include "../json/json.h"
 
 #include <iostream>
 
@@ -21,7 +22,7 @@ enum HandPattern
     THREE_OF_A_KIND,
     TWO_PAIR,
     ONE_PAIR,
-    HIGH_CARD
+    HIGH_CARD,
 };
 
 struct Pattern
@@ -120,6 +121,25 @@ struct Pattern
         }
         out << std::endl;
         return out;
+    }
+
+    Json::Value toJsonObject()
+    {
+        Json::Value root;
+        root["type"] = type;
+        for(int i = 0; i < 4; i++){
+            root[i] = card[i].toInt();
+        }
+        return root;
+    }
+    static Json::Value foldPattern()
+    {
+        Json::Value root;
+        root["type"] = -1;
+        for(int i = 0; i < 4; i++){
+            root[i] = -1;
+        }
+        return root;
     }
 };
 
