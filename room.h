@@ -112,10 +112,6 @@ public:
         return root;
     }
 
-    void sendOperate(Json::Value value, string temp){
-        
-    }
-
     /*
      * broadcast the player's operation
     */
