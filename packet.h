@@ -62,7 +62,6 @@ public:
         }
         return false;
     }
-
     
     /*
      * client packet
@@ -258,13 +257,18 @@ public:
         return root.toStyledString();
     }
 
-    static std::string operate(const int player_pos, const int & player_op, const int money = 0)
+    static std::string operate(const int player_pos, const int & player_op, const int money_left = 0, const int money_op)
     {
+        /*
+         * 用户的操作信息，服务器会将该信息广播给所有client
+        */
+
         Json::Value root;
         root["type"] = OPERATE;
         root["player_pos"] = player_pos;
         root["player_op"]  = player_op;
-        root["money"]      = money;
+        root["money_left"] = money_left;
+        root["money_op"]   = money_op;
 
         return root.toStyledString();
     }
@@ -272,8 +276,9 @@ public:
     static std::string rLogin(bool succeed, const int money = 0)
     {
         /*
-         * player login result
+         * 用户登录响应
         */
+
         Json::Value root;
         root["type"] = LOGIN_RESULT;
         root["result"] = succeed ? SUCCEED : FAILURE;
@@ -283,6 +288,10 @@ public:
 
     static std::string rEntry(bool succeed, const int room_id)
     {
+        /*
+         * 用户进入房间的响应信息
+        */
+
         Json::Value root;
         root["type"]   = ENTRY_RESULT;
         root["result"] = succeed ? SUCCEED : FAILURE;
@@ -293,8 +302,9 @@ public:
     static std::string rPrepare(bool succeed = true)
     {
         /*
-         * player prepare game result
+         * 用户准备游戏的响应信息
         */
+
         Json::Value root;
         root["type"] = PREPARE_RESULT;
         root["result"] = succeed ? SUCCEED : FAILURE;
@@ -304,8 +314,9 @@ public:
     static std::string rDisPrepare(bool succeed = true)
     {
         /*
-         * player cancle preparation result
+         * 用户取向准备游戏的响应信息
         */
+
         Json::Value root;
         root["type"] = DIS_PREPARE_RESULT;
         root["result"] = succeed ? SUCCEED : FAILURE;
@@ -315,8 +326,9 @@ public:
     static std::string rBegin()
     {
         /*
-         * game begin
+         * 向用户发送游戏开始的消息
         */
+
         Json::Value root;
         root["type"] = BEGIN_GAME;
         return root.toStyledString();
@@ -325,7 +337,7 @@ public:
     // static std::string hall(std::vector<Room> & v)
     // {
     //     /*
-    //      * hall information
+    //      * 大厅的房间信息
     //     */
     //     Json::Value root;
     //     Json::Value room_array;
@@ -356,8 +368,9 @@ public:
     static std::string room(const int room_id, std::vector<PlayerTuple> & players)
     {
         /*
-         * room information
+         * 用户所在房间的信息
         */
+
         Json::Value root;
         Json::Value seat_array;
         Json::Value item;

@@ -11,8 +11,8 @@ class Room
 {
 private:
     static int next_id;
-    const int id;
-    pthread_t tid;
+    const int id_;
+    pthread_t tid_;
     // std::vector<SOCKET> players;
     std::vector<PlayerSock*> players;
 
@@ -20,15 +20,17 @@ private:
     void init();
     void exit();
 
-    bool send(const int i, const std::string packet)
-    {
-        return players[i]->sendData(packet);
-    }
+    bool run_now;   // 房间当前是否正在进行游戏
 
-    bool send(PlayerSock* sock, const std::string packet)
-    {
-        return sock->sendData(packet);
-    }
+    // bool send(const int i, const std::string packet)
+    // {
+    //     return players[i]->sendData(packet);
+    // }
+
+    // bool send(PlayerSock* sock, const std::string packet)
+    // {
+    //     return sock->sendData(packet);
+    // }
 
     int getPlayerPos(const std::string player_id)
     {
@@ -40,20 +42,20 @@ private:
             }
         }
 
-        std::cout << "get player id worng" << std::endl;
+        std::cout << "get player id_ worng" << std::endl;
         return -1;
     }
 
 public:
-    Room(const int id = next_id++) : id(id)
+    Room(const int room_id = next_id++) : id_(room_id)
     {
-        std::cout << "Room " << id << " is created" << std::endl;
+        std::cout << "Room " << id_ << " is created" << std::endl;
         init();
     }
 
     ~Room()
     {
-        std::cout << "Room " << id << " is destroyed" << std::endl;
+        std::cout << "Room " << id_ << " is destroyed" << std::endl;
     }
 
     bool append(PlayerSock * player)
@@ -61,10 +63,13 @@ public:
         /*
          * add a new player
         */
-        if (players.size() == MAX_PLAYER_NUM)
+        if (players.size() >= MAX_PLAYER_NUM || run_now)
+        {
+            // 当前人员已满或者已经开始了游戏
             return false;
+        }
 
-        std::cout << "Room " << id << " join a new player" << std::endl;
+        std::cout << "Room " << id_ << " join a new player" << std::endl;
         players.push_back(player);
         return true;
     }
@@ -112,10 +117,6 @@ public:
         return root;
     }
 
-    void sendOperate(Json::Value value, string temp){
-        
-    }
-
     /*
      * broadcast the player's operation
     */
@@ -123,6 +124,12 @@ public:
     {
         int player_pos = getPlayerPos(player->_name);
 
+        std::string op_str = Packet::operate(player_pos, operation, money_left, money_op);
+
+        for (int i = 0; i < players.size() && i != player_pos; ++i)
+        {
+            players[i]->sendData(op_str);
+        }
     }
 
     /*
@@ -168,7 +175,7 @@ public:
         return get_player(i);
     }
 
-    int get_id() { return id; }
+    int get_id() { return id_; }
     int get_num() { return players.size(); }
 
     PlayerSock* get_player(const int i) {

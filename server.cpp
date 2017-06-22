@@ -266,10 +266,14 @@ void* hallThread(void* arg)
                 Json::Value root;
                 if (Packet::decode(packet, root) && root["type"] == ENTRY)
                 {
-                    // if root["room"]
                     int room_id = root["room"].asInt();
-                    server->rooms[room_id].append(*it);
-                    it = server->hall.erase(it);
+
+                    // 向房间添加新的成员
+                    bool flag = server->rooms[room_id].append(*it);
+                    
+                    if (flag)
+                        it = server->hall.erase(it);
+                    
                     (*it)->sendData(Packet::rEntry(true, room_id));
                     (*it)->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(*it)));
                     std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
