@@ -1,6 +1,6 @@
 //
 //   by DarkProbe
-//   15/4/2017
+//   2017-4-15
 //
 
 #ifndef PLAYER_H

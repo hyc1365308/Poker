@@ -1,8 +1,9 @@
-#include "Operate.h"
+//
+//   by DarkProbe
+//   2017-6-20
+//
 
-//void Operate::doIt(Player* p){
-//	printf("DEFAULT!\n");
-//};
+#include "Operate.h"
 
 void Fold::doIt(Player* p){
 	printf("FOLD\n");

@@ -1,6 +1,6 @@
 //
 //   by DarkProbe
-//   15/4/2017
+//   2017-6-20
 //
 
 #ifndef OPERATE_H
