@@ -87,13 +87,13 @@ public:
     /*
      * get a operate from player
     */
-    Json::Value getOperate(Player* player)
+    Json::Value getOperate(Player* player, const int cur_max_money)
     {
         std::cout << "get operation now" << std::endl;
         PlayerSock * sock = get_player(player);
         std::cout << "now turn to player " << sock->get_id() << std::endl;
         Json::Value root;
-        sock->sendData(Packet::requset());
+        sock->sendData(Packet::requset(cur_max_money));
         while (true)
         {
             std::string packet_str = sock->recvData();
@@ -110,6 +110,10 @@ public:
         std::cout << "get operation done" << std::endl;
 
         return root;
+    }
+
+    void sendOperate(Json::Value value, string temp){
+        
     }
 
     /*

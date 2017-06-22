@@ -27,7 +27,7 @@ enum Type
     CALL,           // 跟注
     FOLD,           // 盖牌
     ALLIN,          // 全跟
-    REQUSET,
+    REQUSET,        // 请求玩家进行一次操作
     OPERATE,        // 其他成员的操作，数据包要向所有client发送
     LOGIN_RESULT,
     ENTRY_RESULT,
@@ -250,10 +250,11 @@ public:
         return root.toStyledString();
     }
 
-    static std::string requset()
+    static std::string requset(const int cur_max_money)
     {
         Json::Value root;
         root["type"] = REQUSET;
+        root["cur_max_money"] = cur_max_money;  // 当前场上最大钱数
         return root.toStyledString();
     }
 
