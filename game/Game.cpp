@@ -1,5 +1,5 @@
 //
-//   by DarkProbe
+//   by Huang Yueqin
 //   2017-4-15
 //
 
@@ -10,7 +10,6 @@
 #include <chrono>
 #include "Game.h"
 #include "compare.cpp"
-
 
 using std::cout;
 using std::endl;
@@ -196,7 +195,7 @@ void Game::lcsPlayer(){
 }
 
 // license public card with index i
-// and broadcast the license infomation
+// and broadcast the license information
 //
 void Game::lcsPublic(int i){
 	cout<<"doing lcsPublic...";
@@ -434,12 +433,17 @@ Json::Value Game::n_getOperate(Player* p){
 }
 
 void Game::n_castOperate(Player* p, Operate* op){
-	//send bet operate to all players
+	//send a bet operate to all players
+	//Player*  p  : the player that did the operation
+	//Operate* op : the operation
 	return _room->castOperate(p, op->getType(), p->_money, p->_presentBet);
 }
 
 void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){
 	//tell Player p :he was licensed 2 Card: c1 & c2
+	//Player* p   : the player to be licenced
+	//Card    c1  : the 1st card
+	//Card    c2  : the 2nd card
 	_room->licensePlayer(p, c1);
 	_room->licensePlayer(p, c2);
 }
