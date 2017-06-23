@@ -406,7 +406,7 @@ void Game::calcResult(){
 // send the info to all players
 void Game::showResult(){
 	std::vector<std::tuple<int, Card, Card>> result;
-	Player* p = _presentPlayer;
+	Player* p = _banker;
 	do{
 		//p->_money += p->_gameResult;
 		p->print();
@@ -421,7 +421,7 @@ void Game::showResult(){
 
 		result.push_back(std::make_tuple(cur_money, card1, card2));
 		p = p->_nextPlayer;
-	}while(p != _presentPlayer);
+	}while(p != _banker);
 
 	
 	n_showResult(result);

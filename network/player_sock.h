@@ -29,17 +29,14 @@ class PlayerSock
 private:
     std::string id;             // 用户ID
     int money;                  // 用户当前金额(每轮游戏后更新)
-    // sockaddr_in addr;        // address, in case of need
-    const SOCKET sock;
+    const SOCKET sock;          // 用户的socket连接值
 
-    char recv_buffer[BUFFER_SIZE];      // receive buffer
-    char send_buffer[BUFFER_SIZE];      // send buffer
+    char recv_buffer[BUFFER_SIZE];      // 接收缓冲区
 
 public:
     PlayerSock(const SOCKET sock, const std::string & id, const int money) : sock(sock), id(id), money(money)
     {
-        std::cout << "A new player login now" << std::endl;
-        std::cout << "player id = " << id << ", sock = " << sock << std::endl;
+        std::cout << "Player " << id << ", sock(" << sock << ") login now" << std::endl;
     }
 
     ~PlayerSock()
@@ -50,6 +47,11 @@ public:
 
     bool testConnect()
     {
+        /*
+         * 功能 : 检测sock连接是否断开，如果断开返回false
+         * 返回值 : 如果连接断开返回false，否则返回true
+        */
+
         // 初始化 recv_buffer
         memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
 
@@ -61,15 +63,25 @@ public:
             // 连接断开
             return false;
         }
+
         return true;
     }
 
     bool sendData(std::string data)
     {
+        /*
+         * 功能 : 使用sock发送数据
+         * 参数 : 要发送的数据(string类型)
+         * 返回值 : 成功返回true，否则false
+        */
+
         std::cout << std::endl << "Send " << id << std::endl << data;
 
+        // 发送数据
         int ret = send(sock, data.c_str(), data.size() + 1, 0);
+
         std::cout << "\t  ret = " << ret << std::endl;
+        
         if (ret <= 0)
             return false;
         else
@@ -78,20 +90,20 @@ public:
 
     std::string recvData()
     {
+        /*
+         * 功能 : 使用sock接收数据
+         * 返回值 : 接收到的数据(string类型)
+        */
+
+        // 清空缓冲区
         memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
 
         int ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
         if (ret > 0)
         {
+            // 打印接收到的数据
             std::cout << std::endl << "Recv " << id << std::endl << recv_buffer;
             std::cout << "\t  ret = " << ret << std::endl;
-
-            // for (int i = 0; i < ret; ++i)
-            // {
-            //     // 将所有空字符转换成换行符
-            //     if (recv_buffer[i] == '\0')
-            //         recv_buffer[i] = '\n';
-            // }
 
             return recv_buffer;
         }

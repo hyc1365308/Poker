@@ -8,7 +8,7 @@
 #ifndef HALL_H
 #define HALL_H
 
-#include "player_sock.h"
+#include "./network/player_sock.h"
 #include "room.h"
 
 #include <iostream>

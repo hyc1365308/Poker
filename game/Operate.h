@@ -8,7 +8,7 @@
 
 #include <string>
 #include "Player.h"
-#include "../packet.h"
+#include "../network/packet.h"
 
 using std::string;
 

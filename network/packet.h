@@ -12,7 +12,7 @@
 #include <vector>
 #include <tuple>
 
-#include "json/json.h"
+#include "../json/json.h"
 
 #define SUCCEED 1
 #define FAILURE 0

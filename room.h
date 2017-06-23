@@ -8,8 +8,8 @@
 #ifndef ROOM_H
 #define ROOM_H
 
-#include "player_sock.h"
-#include "packet.h"
+#include "./network/player_sock.h"
+#include "./network/packet.h"
 #include "./game/Game.h"
 
 #include <mutex>

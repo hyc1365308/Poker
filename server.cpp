@@ -1,8 +1,9 @@
-/*
- * Author   :   Feng Yulin
- * Time     :   2017-05-04(1st), 17-05-10(2nd), 17-5-22(3rd)
- * Function :   Server class
-*/
+/************************************************
+ * 名称 : server.h
+ * 作者 : 冯瑜林
+ * 时间 : 2017-05-10(1st)、2017-6-22(last)
+ * 内容 : 服务器实现文件
+************************************************/
 
 #include "server.h"
 
@@ -12,15 +13,23 @@ using namespace std;
 
 void Server::init()
 {
+    /*
+     * 功能 : 初始化所有服务器信息
+    */
+
     initSocket();
     loadPlayers();
+
+    // 创建所有房间
     for (int i = 0; i < ROOM_NUM; ++i)
     {
         rooms_[i] = new Room(this);
     }
 
+    // 创建大厅
     hall_ = new Hall(rooms_, ROOM_NUM);
 
+    // 设置每个房间中大厅指针的值
     for (int i = 0; i < ROOM_NUM; ++i)
     {
         rooms_[i]->set_hall(hall_);
@@ -30,7 +39,12 @@ void Server::init()
 bool Server::verifyUser(std::string & user_name, std::string & password)
 {
     /*
-     * 验证用户是否在数据库中
+     * 功能 : 验证用户是否在数据库中
+     * 参数 :
+     *      user_name : 用户ID，string 类型
+     *      password  : 用户密码，string 类型
+     * 返回值 :
+     *      一个int值,代表用户位置
     */
 
     cout << "verify user" << endl;
@@ -41,7 +55,6 @@ bool Server::verifyUser(std::string & user_name, std::string & password)
     if (players_.find(user_name) == players_.end())
     {
         cout << "user not in the name list" << endl;
-        cout << "user name: " << user_name << endl;
         return false;
     }
     else
@@ -49,10 +62,11 @@ bool Server::verifyUser(std::string & user_name, std::string & password)
         if (get<0>(players_[user_name]) != password)
         {
             cout << "password is incorrect" << endl;
-            cout << "id: " << user_name << ", pass: " << password << endl;
             return false;
         }
     }
+
+    cout << "verify succeed" << endl;
 
     return true;
 }
@@ -60,8 +74,9 @@ bool Server::verifyUser(std::string & user_name, std::string & password)
 bool Server::bindPort()
 {
     /*
-     * 绑定端口，端口为listen_port
+     * 功能 : 绑定端口，端口为listen_port
     */
+
     sin_.sin_family = AF_INET;
     sin_.sin_port = htons(listen_port_);
     sin_.sin_addr.S_un.S_addr = INADDR_ANY;
@@ -75,6 +90,12 @@ bool Server::bindPort()
 
 bool Server::listenClients()
 {
+    /*
+     * 功能 : 监听客户端连接
+     * 返回值 :
+     *      监听成功，返回true，否则返回false
+    */
+
     if(listen(listen_sock_, 5) == SOCKET_ERROR)
     {
         cout << "Listen error !!!" << endl;
@@ -87,7 +108,11 @@ bool Server::listenClients()
 bool Server::acceptConnect(SOCKET & sClient)
 {
     /*
-     * 接收一个连接
+     * 功能 : 接收一个连接
+     * 参数 :
+     *      sClient : SOCKET引用，在函数中被修改
+     * 返回值 :
+     *      如果接收成功，返回true，否则false
     */
 
     sockaddr_in remoteAddr;
@@ -109,10 +134,14 @@ bool Server::acceptConnect(SOCKET & sClient)
 
 bool Server::initSocket()
 {
-    // init buffer
+    /*
+     * 功能 : 初始化server 监听socket
+    */
+
+    // 初始化接收缓存
     memset(recv_buffer_, '\0', 512);
 
-    // init WSA
+    // 初始化 WSA
     WORD sockVersion = MAKEWORD(2,2);
     WSADATA wsaData;
     if(WSAStartup(sockVersion, &wsaData)!=0)
@@ -121,7 +150,7 @@ bool Server::initSocket()
         return false;
     }
 
-    // create socket
+    // 创建socket
     listen_sock_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if(listen_sock_ == INVALID_SOCKET)
     {
@@ -134,11 +163,17 @@ bool Server::initSocket()
 
 bool Server::loadPlayers()
 {
+    /*
+     * 功能 : 加载用户信息
+    */
+
     std::ifstream fin(player_file_path);
-    int num;        // 玩家个数
+
+    // 输入玩家个数
+    int num;
     fin >> num;
-    std::string id, password;
     int money;
+    std::string id, password;
     cout << endl << "Read players data" << endl;
     printf("Num     id     password     money\n");
     for (int i = 0; i < num; ++i)
@@ -154,8 +189,11 @@ bool Server::loadPlayers()
 
 void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
 {
-    std::ofstream fout(player_file_path);
-    fout << players_.size() << endl;
+    /*
+     * 功能 : 更新所有用户信息(更新到文件中)
+     * 参数 :
+     *      update_dict : <用户ID : 对应的money值>
+    */
 
     for (auto it : update_dict)
     {
@@ -172,6 +210,11 @@ void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
         players_[it.first] = new_info;
     }
 
+    std::ofstream fout(player_file_path);
+    // 输出用户个数
+    fout << players_.size() << endl;
+
+    // 输出每个用户的信息
     for (auto it : players_)
     {
         PlayerInfo player = it.second;
@@ -187,23 +230,31 @@ void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
 
 bool setTestAlive(const int sockfd)
 {
+    /*
+     * 功能 : 设置 socket 的 test alive 选项
+     * 参数 :
+     *      sockfd : 要设置的socket值
+    */
+
     struct TCP_KEEPALIVE {  
         u_long onoff;  
         u_long keepalivetime;  
         u_long keepaliveinterval;  
     };
 
-    //KeepAlive实现  
-    TCP_KEEPALIVE inKeepAlive = {0}; //输入参数  
+    // KeepAlive实现
+    TCP_KEEPALIVE inKeepAlive = {0};                //输入参数  
     unsigned long ulInLen = sizeof(TCP_KEEPALIVE);  
-    TCP_KEEPALIVE outKeepAlive = {0}; //输出参数  
+    TCP_KEEPALIVE outKeepAlive = {0};               //输出参数  
     unsigned long ulOutLen = sizeof(TCP_KEEPALIVE);  
     unsigned long ulBytesReturn = 0;
 
-    //设置socket的keep alive为5秒，并且发送次数为3次  
+    // 设置socket的keep alive为5秒，发送次数为3次  
     inKeepAlive.onoff = 1;
-    inKeepAlive.keepaliveinterval = 5000; //两次KeepAlive探测间的时间间隔
-    inKeepAlive.keepalivetime     = 5000; //开始首次KeepAlive探测前的TCP空闭时间
+    // 两次KeepAlive探测间的时间间隔
+    inKeepAlive.keepaliveinterval = 5000;
+    //开始首次KeepAlive探测前的TCP空闭时间
+    inKeepAlive.keepalivetime     = 5000;
     if (
         WSAIoctl((unsigned int)sockfd,  
         _WSAIOW(IOC_VENDOR,4),
@@ -221,13 +272,17 @@ bool setTestAlive(const int sockfd)
 
 void Server::waitConnect()
 {
+    /*
+     * 功能 : 等待新用户连接(循环等待)
+    */
+
     while (true)
     {
         SOCKET csock;
         if (!acceptConnect(csock))
         {
-            // accept connection wrong
-            Sleep(10);      // 等待一段时间
+            // 建立连接出错
+            Sleep(10);      // 等待10ms
             continue;
         }
 
@@ -249,7 +304,7 @@ void Server::waitConnect()
             cout << "Recv : " << recv_buffer_ << endl;
         }
 
-        // verify the client
+        // 验证客户端是否合法
         Json::Value root;
         if(!Packet::decode(recv_buffer_, root))
         {
@@ -272,7 +327,7 @@ void Server::waitConnect()
             password  = root["password"].asString();
         }
 
-        // verify players name & password
+        // 验证用户ID与密码
         if (!verifyUser(user_name, password))
         {
             PlayerSock _player(csock, user_name, 0);
@@ -280,25 +335,23 @@ void Server::waitConnect()
             continue;
         }
 
+        // 设置TestAlive选项
         if (!setTestAlive(csock))
         {
             cout << "set csock test alive wrong" << endl;
         }
 
         int money = get<1>(players_[user_name]);
-        // cout << "client sock = " << csock << endl;
         PlayerSock * new_player = new PlayerSock(csock, user_name, money);
 
         bool flag = new_player->sendData(Packet::rLogin(true, money));
-        // new_player->sendData("just for test\n");
         if (!flag)
         {
             cout << "cannot send login result" << endl;
         }
         
+        // 向大厅中添加新用户
         hall_->insert(new_player);
-
-        std::cout << "Now hall_ has " << hall_->size() << " players" << std::endl;
     }
 }
 
