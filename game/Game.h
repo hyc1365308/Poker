@@ -48,7 +48,7 @@ public:
 	void     n_licensePlayer(Player*, Card & , Card & );
 	void     n_licensePublic(int, Card & );
 	void     n_fresh();
-	void     n_showResult(Json::Value);
+	void     n_showResult(std::vector<std::tuple<int, Card, Card>>);
 };
 
 #endif

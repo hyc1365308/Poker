@@ -118,7 +118,7 @@ bool Server::initSocket()
     return true;
 }
 
-bool Server::loadPlayers(const char* file_name)
+bool Server::loadPlayers()
 {
     std::ifstream fin(file_name);
     int num;        // 玩家个数
@@ -136,6 +136,31 @@ bool Server::loadPlayers(const char* file_name)
     fin.close();
 
     return true;
+}
+
+void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
+{
+    std::ofstream fout(file_name);
+    fout << players.size() << endl;
+
+    for (auto it : update_dict)
+    {
+        int money = it.second;
+
+        // 获得原来过时的信息
+        PlayerInfo old_info = players[it.first];
+
+        // 构造新的信息
+        string password = std::get<0>(old_info);
+        PlayerInfo new_info = make_tuple(password, money);
+
+        // 更新信息
+        players[it.first] = new_info;
+
+        fout << it.first << "  " << password << "  " << money;
+    }
+
+    fout.close();
 }
 
 bool setTestAlive(const int sockfd)
@@ -208,6 +233,7 @@ void* waitConnect(void* arg)
         if (!server->acceptConnect(csock))
         {
             // accept connection wrong
+            Sleep(10);
             continue;
         }
 
@@ -221,6 +247,7 @@ void* waitConnect(void* arg)
             continue;
         }
 
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
         int ret = recv(csock, recv_buffer, 512, 0);
         if(ret > 0)
         {
@@ -259,13 +286,13 @@ void* waitConnect(void* arg)
             continue;
         }
 
-        // if (!setTestAlive(csock))
-        // {
-        //     cout << "set csock test alive wrong" << endl;
-        // }
+        if (!setTestAlive(csock))
+        {
+            cout << "set csock test alive wrong" << endl;
+        }
 
         int money = get<1>(server->players[user_name]);
-        cout << "client sock = " << csock << endl;
+        // cout << "client sock = " << csock << endl;
         PlayerSock * new_player = new PlayerSock(csock, user_name, money);
 
         bool flag = new_player->sendData(Packet::rLogin(true, money));
@@ -290,8 +317,6 @@ void* hallThread(void* arg)
 
     while (true)
     {
-        // std::cout << "hall thread run now" << std::endl;
-
         for (auto it = server->hall.begin(); it != server->hall.end(); ++it)
         {
             // cout << "check sock " << (*it) << "'s entry" << endl;
@@ -311,7 +336,7 @@ void* hallThread(void* arg)
                     }
 
                     // 向房间添加新的成员
-                    bool flag = server->rooms[room_id].append(*it);
+                    bool flag = server->rooms[room_id]->append(*it);
                     
                     PlayerSock* old_sock = (*it);
 
@@ -322,16 +347,14 @@ void* hallThread(void* arg)
                         it = server->hall.erase(it);
                         cout << "erase done\n";
                         mtx.unlock();
-                    }
 
-                    old_sock->sendData(Packet::rEntry(true, room_id));
-                    old_sock->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(old_sock)));
-                    std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
+                        std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
+                    }
                 }
             }
         }
 
-        Sleep(10);  // sleep 10ms
+        Sleep(100);  // sleep
     }
 }
 
@@ -342,28 +365,27 @@ void* testConnect(void* arg)
     Server* server = (Server*) arg;
     while(true)
     {
-        mtx.lock();
 
         for (auto it = server->hall.begin(); it != server->hall.end(); )
         {
             // sock = *it
             if ((*it)->testConnect())
             {
-                // cout << *it << " " << endl;
+                cout << "test connect " << *it << " " << endl;
                 ++it;
             }
             else
             {
                 // sock has been closed
+                mtx.lock();
                 cout << "socket " << *it << " is detected closed" << endl;
                 delete (*it);
                 it = server->hall.erase(it);
+                mtx.unlock();
             }
         }
 
-        mtx.unlock();
-
-        // test all sockets connection every 5 seconds
+        // test all sockets connection every 10 seconds
         sleep(10);
     }
 }
@@ -371,8 +393,8 @@ void* testConnect(void* arg)
 void Server::run()
 {
     // create test connection thread
-    // pthread_t test_tid;
-    // pthread_create(&test_tid, NULL, testConnect, this);
+    pthread_t test_tid;
+    pthread_create(&test_tid, NULL, testConnect, this);
 
     // create wait connection thread
     pthread_t wait_tid;
@@ -384,11 +406,11 @@ void Server::run()
     void* tret;
     pthread_join(wait_tid, &tret);
     pthread_join(hall_tid, &tret);
-    // pthread_join(test_tid, &tret);
+    pthread_join(test_tid, &tret);
 }
 
 int main(int argc, char* argv[])
 {
-    Server server;
+    Server server("./data/player_info.txt");
     server.run();
 }

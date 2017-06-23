@@ -4,6 +4,7 @@
 #include <string>
 #include <unistd.h>
 #include <pthread.h>
+#include <string.h>
 
 #include "packet.h"
 
@@ -35,34 +36,15 @@ public:
 
     bool testConnect()
     {
-        // char test_buffer[] = "test alive\r\n";
-        // std::string packet = Packet::testAlive();
-        // if (send(sock, packet.c_str(), packet.size(), 0) <= 0)
-        //     // sock has been closed
-        //     return false;
-        // else
-        //     return true;
+        // 初始化 recv_buffer
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
 
-        // struct tcp_info info; 
-        // int len = sizeof(info);
-        // getsockopt(sock, IPPROTO_TCP, TCP_INFO, &info, (socklen_t *)&len); 
-
-        // if (info.tcpi_state == TCP_ESTABLISHED)
-        // { 
-        //     //myprintf("socket connected\n"); 
-        //     return true;
-        // } 
-        // else 
-        // { 
-        //     //myprintf("socket disconnected\n"); 
-        //     return false;
-        // } 
-
-        // int select_flag = select(NULL, &sock, NULL, NULL, NULL);
         int recv_flag = recv(sock, recv_buffer, BUFFER_SIZE, 0);
-        std::cout << "check sock " << sock << "'s flag is " << recv_flag << std::endl;
-        if (recv_flag == -1)
+        
+        int error = WSAGetLastError();
+        if (recv_flag == -1 && error == WSAECONNRESET)
         {
+            // 连接断开
             return false;
         }
         return true;
@@ -70,11 +52,10 @@ public:
 
     bool sendData(std::string data)
     {
-        std::cout << std::endl << "send player " << id << std::endl << data << std::endl << std::endl;
-        // std::cout << "now send data" << std::endl;
+        std::cout << std::endl << "Send " << id << std::endl << data;
 
         int ret = send(sock, data.c_str(), data.size() + 1, 0);
-        std::cout << "\tsend data ret = " << ret << std::endl;
+        std::cout << "\t  ret = " << ret << std::endl;
         if (ret <= 0)
             return false;
         else
@@ -83,13 +64,24 @@ public:
 
     std::string recvData()
     {
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
+
         int ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
-        if(ret > 0)
+        if (ret > 0)
         {
-            recv_buffer[ret] = 0x00;
-            // std::cout << "Recv : " << recv_buffer << std::endl;
+            std::cout << std::endl << "Recv " << id << std::endl << recv_buffer;
+            std::cout << "\t  ret = " << ret << std::endl;
+            
+            // for (int i = 0; i < ret; ++i)
+            // {
+            //     // 将所有空字符转换成换行符
+            //     if (recv_buffer[i] == '\0')
+            //         recv_buffer[i] = '\n';
+            // }
+
             return recv_buffer;
         }
+        
         return "";
     }
 

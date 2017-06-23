@@ -1,3 +1,10 @@
+/************************************************
+ * 名称 : room.h
+ * 作者 : 冯瑜林
+ * 时间 : 2017-05-13(1st)、2017-6-22(last)
+ * 内容 : 房间类头文件
+************************************************/
+
 #ifndef ROOM_H
 #define ROOM_H
 
@@ -7,47 +14,36 @@
 
 #include <mutex>
 
-const int MAX_PLAYER_NUM = 8;
+// 每个房间最大用户数
+#define MAX_PLAYER_NUM 8
+#define MIN_PLAYER_NUM 3
 
 class Room
 {
 private:
-    static int next_id;
-    const int id_;
-    pthread_t tid_;
-    // std::vector<SOCKET> players;
-    std::vector<PlayerSock*> players;
-    std::mutex mtx_;
+    /* 类成员变量 */
+    static int next_id;     // 下一个房间的编号，用于批量生成多个房间
+    const int id_;          // 本房间编号
+    pthread_t tid_;         // 本房间线程id
+    bool run_now;           // 房间当前是否正在进行游戏
+    // Server * server_;
 
-    friend void* runRoom(void*);
-    void init();
-    void exit();
+    std::vector<PlayerSock*> players_;  // 本房间所有玩家
+    std::mutex mtx_;                    // 本房间线程锁
 
-    bool run_now;   // 房间当前是否正在进行游戏
 
-    // bool send(const int i, const std::string packet)
-    // {
-    //     return players[i]->sendData(packet);
-    // }
+    /* 类成员函数 */
+    void init();        // 初始化
 
-    // bool send(PlayerSock* sock, const std::string packet)
-    // {
-    //     return sock->sendData(packet);
-    // }
+    // 根据玩家id获取其所在位置
+    int getPlayerPos(const std::string player_id);
 
-    int getPlayerPos(const std::string player_id)
-    {
-        for (int i = 0; i < players.size(); ++i)
-        {
-            if (player_id == players[i]->get_id())
-            {
-                return i;
-            }
-        }
+    // 返回此刻房间信息(根据不同的玩家返回不同的座次信息)
+    std::vector<PlayerTuple> getPlayers(const int pos);
+    
 
-        std::cout << "get player id_ worng" << std::endl;
-        return -1;
-    }
+    /* 类友元函数 */
+    friend void* runRoom(void*);        // 本房间线程函数
 
 public:
     Room(const int room_id = next_id++) : id_(room_id)
@@ -61,170 +57,74 @@ public:
         std::cout << "Room " << id_ << " is destroyed" << std::endl;
     }
 
-    bool append(PlayerSock * player)
-    {
-        /*
-         * add a new player
-        */
-        if (players.size() >= MAX_PLAYER_NUM || run_now)
-        {
-            // 当前人员已满或者已经开始了游戏
-            return false;
-        }
+    /*
+     * 提供给Server类及Game类的接口
+    */
 
-        std::cout << "Room " << id_ << " join a new player" << std::endl;
-        
-        mtx_.lock();
-        std::cout << "Room " << id_ << " push_back " << player->get_id() << std::endl;
-        players.push_back(player);
-        std::cout << "push_back done" << std::endl;
-        mtx_.unlock();
+    // 添加一个玩家
+    bool append(PlayerSock * player);
 
-        return true;
-    }
+    // 移除一个玩家
+    void remove(const int pos);
+    void remove(const PlayerSock * player);
+    void removeAll();
 
-    void remove(const PlayerSock * player)
-    {
-        /*
-         * remove a player from this room
-        */
+    // 从指定玩家处得到一次操作
+    Json::Value getOperate(Player* player, const int cur_max_money);
 
-        mtx_.lock();
-        for (auto it = players.begin(); it != players.end(); ++it)
-        {
-            if (*it == player)
-            {
-                it = players.erase(it);
-                break;
-            }
-        }
-        mtx_.unlock();
-    }
+    // 广播某玩家的某次操作
+    void castOperate(const Player* player, const int operation, const int money_left = 0, const int money_op = 0, bool is_blind = false);
+    
+    // 发送玩家个人的牌信息
+    void licensePlayer(Player* player, Card & c);
+
+    // 发送公共牌信息
+    void licensePublic(int index, Card & c);
+
+    // 向所有玩家展现最终结果
+    // void showResult(Json::Value gameResult);
+    void showResult(std::vector<std::tuple<int, Card, Card>>);
+
 
     /*
-     * get a operate from player
+     * 一些简短的只用于获取room内部信息的内联函数
     */
-    Json::Value getOperate(Player* player, const int cur_max_money)
-    {
-        std::cout << "get operation now" << std::endl;
-        PlayerSock * sock = get_player(player);
-        std::cout << "now turn to player " << sock->get_id() << std::endl;
-        Json::Value root;
-        sock->sendData(Packet::requset(cur_max_money));
-        while (true)
-        {
-            std::string packet_str = sock->recvData();
-            // std::cout << "recv " << packet_str << std::endl;
-            if (!Packet::decode(packet_str, root))
-            {
-                continue;
-            }
-            else
-            {
-                break;
-            }
-        }
-        std::cout << "get operation done" << std::endl;
+    
+    // 获取编号
+    int get_id() const { return id_; }
+    // 获取当前用户数
+    int get_num() const { return players_.size(); }
+    // 获取玩家的id
+    std::string getPlayerID(const int pos) { return players_[pos]->get_id(); }
 
-        return root;
-    }
-
-    /*
-     * broadcast the player's operation
-    */
-    void castOperate(const Player* player, const int operation, const int money_left = 0, const int money_op = 0)
-    {
-        int player_pos = getPlayerPos(player->_name);
-
-        std::string op_str = Packet::operate(player_pos, operation, money_left, money_op);
-
-        for (int i = 0; i < players.size() && i != player_pos; ++i)
-        {
-            players[i]->sendData(op_str);
-        }
-    }
-
-    /*
-     * send license info to player
-    */
-    void licensePlayer(Player* player, Card & c)
-    {
-        std::cout << "send license info now" << std::endl;
-        PlayerSock * sock = get_player(player);
-        std::cout << "now send message " << sock->get_id() << std::endl;
-        sock->sendData(Packet::licensePlayer(c.toInt()));
-    }
-
-    /*
-     * send public license info to all player
-    */
-    void licensePublic(int index, Card & c)
-    {
-        std::cout << "send public license info now" << std::endl;
-        std::string root = Packet::licensePublic(index, c.toInt());
-        for (auto sock : players){
-            sock->sendData(root);
-        }
-    }
-
-    /*
-     * send game result info to all player
-    */
-    void showResult(Json::Value gameResult)
-    {
-        std::cout << "send game result now" << std::endl;
-        std::string root = Packet::showResult(gameResult);
-        for (auto sock : players){
-            sock->sendData(root);
-        }
-    }
-
+    // 根据用户编号返回其对应的PlayerSock指针
     PlayerSock* operator[](const int i)
     {
-        /*
-         * get a player socket
-        */
         return get_player(i);
     }
-
-    int get_id() { return id_; }
-    int get_num() { return players.size(); }
-
-    PlayerSock* get_player(const int i) {
-        if (i >= players.size() || i < 0)
+    // 根据用户位置得到其PlayerSock指针
+    PlayerSock* get_player(const int i) const
+    {
+        if (i >= players_.size() || i < 0)
         {
             return NULL;
         }
-        return players[i];
+        return players_[i];
     }
 
-    PlayerSock* get_player(const Player* player)
+    // 根据用户Player类型指针得到其PlayerSock指针
+    PlayerSock* get_player(const Player* player) const 
     {
         std::string player_name = player->_name;
-        // int player_num = -1;
-        for (int i = 0; i < players.size(); ++i)
+        for (int i = 0; i < players_.size(); ++i)
         {
-            if (players[i]->get_id() == player_name)
+            if (players_[i]->get_id() == player_name)
             {
-                // player_num = i;
-                return players[i];
+                return players_[i];
             }
         }
 
         return NULL;
-    }
-
-    std::vector<PlayerTuple> getPlayers(const PlayerSock* player_sock)
-    {
-        std::string player_id = player_sock->get_id();
-        std::vector<PlayerTuple> player_tuples;
-        for (int i = 0; i < players.size(); ++i)
-        {
-            bool is_in = (player_id == players[i]->get_id()) ? true : false;
-            player_tuples.push_back(make_tuple(players[i]->get_id(), players[i]->get_money(), is_in));
-        }
-
-        return player_tuples;
     }
 };
 
