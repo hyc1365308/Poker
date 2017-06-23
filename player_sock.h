@@ -1,9 +1,13 @@
+#ifndef PLAYER_SOCK_H
+#define PLAYER_SOCK_H
+
 #include <iostream>
 #include <winsock2.h>
 #include <vector>
 #include <string>
 #include <unistd.h>
-#include <pthread.h>
+// #include <pthread.h>
+#include <string.h>
 
 #include "packet.h"
 
@@ -35,35 +39,52 @@ public:
 
     bool testConnect()
     {
-        // char test_buffer[] = "test alive\r\n";
-        std::string packet = Packet::testAlive();
-        if (send(sock, packet.c_str(), packet.size(), 0) <= 0)
-            // sock has been closed
+        // 初始化 recv_buffer
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
+
+        int recv_flag = recv(sock, recv_buffer, BUFFER_SIZE, 0);
+        
+        int error = WSAGetLastError();
+        if (recv_flag == -1 && error == WSAECONNRESET)
+        {
+            // 连接断开
             return false;
-        else
-            return true;
+        }
+        return true;
     }
 
     bool sendData(std::string data)
     {
-        std::cout << std::endl << "send " << id << std::endl << data << std::endl << std::endl;
-        // std::cout << "now send data" << std::endl;
+        std::cout << std::endl << "Send " << id << std::endl << data;
 
-        if (send(sock, data.c_str(), data.size() + 1, 0) <= 0)
-            return true;
-        else
+        int ret = send(sock, data.c_str(), data.size() + 1, 0);
+        std::cout << "\t  ret = " << ret << std::endl;
+        if (ret <= 0)
             return false;
+        else
+            return true;
     }
 
     std::string recvData()
     {
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
+
         int ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
-        if(ret > 0)
+        if (ret > 0)
         {
-            recv_buffer[ret] = 0x00;
-            // std::cout << "Recv : " << recv_buffer << std::endl;
+            std::cout << std::endl << "Recv " << id << std::endl << recv_buffer;
+            std::cout << "\t  ret = " << ret << std::endl;
+
+            // for (int i = 0; i < ret; ++i)
+            // {
+            //     // 将所有空字符转换成换行符
+            //     if (recv_buffer[i] == '\0')
+            //         recv_buffer[i] = '\n';
+            // }
+
             return recv_buffer;
         }
+        
         return "";
     }
 
@@ -77,3 +98,4 @@ public:
     int get_money() const { return money; }
 };
 
+#endif

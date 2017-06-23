@@ -2,96 +2,164 @@
 #include <STDIO.H>
 
 #include "packet.h"
+#include "client.h"
 
 #pragma  comment(lib,"ws2_32.lib")
 
-int main(int argc, char* argv[])
+void Client::init()
 {
     WORD sockVersion = MAKEWORD(2,2);
     WSADATA data; 
     if(WSAStartup(sockVersion, &data) != 0)
     {
-        return 0;
+        std::cout << "WSAStartup wrong!!!" << std::endl;
+        exit(-1);
     }
 
-    SOCKET sclient = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(sclient == INVALID_SOCKET)
+    sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(sock == INVALID_SOCKET)
     {
-        printf("invalid socket !");
-        return 0;
+        std::cout << "invalid socket !" << std::endl;
+        exit(-1);
     }
+}
 
-    sockaddr_in serAddr;
-    serAddr.sin_family = AF_INET;
-    serAddr.sin_port = htons(8900);
-    serAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1"); 
-    if (connect(sclient, (sockaddr *)&serAddr, sizeof(serAddr)) == SOCKET_ERROR)
+bool Client::connectServer()
+{
+    sockaddr_in server_addr;
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(server_port);
+    server_addr.sin_addr.S_un.S_addr = inet_addr(server_ip.c_str());
+
+    if (connect(sock, (sockaddr *)&server_addr, sizeof(server_addr)) == SOCKET_ERROR)
     {
-        printf("connect error !");
-        closesocket(sclient);
-        return 0;
+        printf("connect error!!!\n");
+        closesocket(sock);
+        return false;
     }
-    // char * sendData = "Hello, I'm coming!\n";
-    // std::string user_name  = "test_user";
-    // std::string password   = "test";
-    std::string user_name = argv[1];
-    std::string password  = argv[2];
-    std::string packet_str = Packet::login(user_name, password);
-    send(sclient, packet_str.c_str(), packet_str.size(), 0);
 
-    char recData[255];
-    int ret;
+    return true;
+}
+
+bool Client::sendData(std::string && data)
+{
+    if (send(sock, data.c_str(), data.size(), 0) > 0)
+        return true;
+
+    return false;
+}
+
+Json::Value Client::recvData()
+{
     Json::Value root;
 
-    // login
     while (true)
     {
-        ret = recv(sclient, recData, 255, 0);
-        if(ret > 0 && Packet::decode(recData, root))
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
+        int ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
+        if(ret > 0 && Packet::decode(recv_buffer, root))
         {
-            recData[ret] = 0x00;
-            if (root["type"] == LOGIN_RESULT && root["result"].asInt() == SUCCEED)
-            {
-                std::cout << "login succeed, money is " << root["money"] << std::endl;
-            }
             break;
         }
     }
+
+    return root;
+}
+
+bool Client::login(const std::string & user_name, const std::string & password)
+{
+    if(!sendData(Packet::login(user_name, password)))
+    {
+        std::cout << "send packet wrong!" << std::endl;
+        return false;
+    }
+
+    Json::Value root = recvData();
+
+    if (root["type"] == LOGIN_RESULT && root["result"].asInt() == SUCCEED)
+    {
+        std::cout << "login succeed, money is " << root["money"] << std::endl;
+    }
+}
+
+bool Client::entry(const int room_id)
+{
+    if (!sendData(Packet::entry(room_id)))
+    {
+        std::cout << "send packet wrong!" << std::endl;
+        return false;
+    }
+
+    Json::Value root = recvData();
+
+    if (root["type"] == ENTRY_RESULT)
+    {
+        if (root["result"].asInt() == SUCCEED)
+        {
+            std::cout << "entry room " << root["room"] << std::endl;
+
+            root = recvData();
+            if (root["type"] == ROOM)
+            {
+                std::vector<PlayerTuple> room_info = Packet::getRoomInfo(root);
+                printf("%12s:%11s%8s%6s\n", "player num", "ID", "Money", "In");
+                for (int i = 0; i < room_info.size(); ++i)
+                {
+                    std::string player_id = std::get<0>(room_info[i]);
+                    int money = std::get<1>(room_info[i]);
+                    
+                    std::string in_pos;
+                    if (std::get<2>(room_info[i]))
+                    {
+                        in_pos = "mine";
+                    }
+                    else
+                    {
+                        in_pos = "----";
+                    }
+
+                    printf("%12s:%11s%8d%6s\n", i, player_id, money, in_pos);
+                }
+            }
+
+            return true;
+        }
+        else
+        {
+            std::cout << "cannot entry room " << room_id << std::endl;
+            return false;
+        }
+    }
+}
+
+int main(int argc, char* argv[])
+{
+    Client client(8900, "127.0.0.1");
+
+    std::string user_name = argv[1];
+    std::string password  = argv[2];
+
+    client.connectServer();
+
+    // login
+    client.login(user_name, password);
 
     // entry a room
-    while (true)
-    {
-        std::cout << "Please input room num: ";
-        int room_id;
-        std::cin >> room_id;
-        std::cout << std::endl;
-        packet_str = Packet::entry(room_id);
-        send(sclient, packet_str.c_str(), packet_str.size(), 0);
-        ret = recv(sclient, recData, 255, 0);
-        if(ret > 0 && Packet::decode(recData, root))
-        {
-            recData[ret] = 0x00;
-            if (root["type"] == ENTRY_RESULT && root["result"].asInt() == SUCCEED)
-            {
-                std::cout << "entry room " << root["room"] << std::endl;
-            }
-            break;
-        }
-    }
+    std::cout << "Please input room num: ";
+    int room_id;
+    std::cin >> room_id;
+
+    client.entry(room_id);
 
     // begin a game
-    while(true)
+    /*while(true)
     {
-        ret = recv(sclient, recData, 255, 0);
-        if(ret > 0 && Packet::decode(recData, root))
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
+        ret = recv(sock, recv_buffer, BUFFER_SIZE, 0);
+        if(ret > 0 && Packet::decode(recv_buffer, root))
         {
-            recData[ret] = 0x00;
-            if (root["type"] == TEST_ALIVE)
-            {
-                std::cout << "server test alive" << std::endl;
-                continue;
-            }
-            else if (root["type"] != REQUSET)
+            recv_buffer[ret] = 0x00;
+            if (root["type"] != REQUSET)
             {
                 continue;
             }
@@ -103,24 +171,24 @@ int main(int argc, char* argv[])
                 if (operation == "call")
                 {
                     packet_str = Packet::call();
-                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                    send(sock, packet_str.c_str(), packet_str.size(), 0);
                 }
                 else if (operation == "refuel")
                 {
                     int money;
                     std::cin >> money;
                     packet_str = Packet::refuel(money);
-                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                    send(sock, packet_str.c_str(), packet_str.size(), 0);
                 }
                 else if (operation == "fold")
                 {
                     packet_str = Packet::fold();
-                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                    send(sock, packet_str.c_str(), packet_str.size(), 0);
                 }
                 else if (operation == "allin")
                 {
                     packet_str = Packet::allin();
-                    send(sclient, packet_str.c_str(), packet_str.size(), 0);
+                    send(sock, packet_str.c_str(), packet_str.size(), 0);
                 }
             }
 
@@ -130,9 +198,7 @@ int main(int argc, char* argv[])
         {
             continue;
         }
-    }
+    }*/
 
-    closesocket(sclient);
-    WSACleanup();
     return 0;
 }

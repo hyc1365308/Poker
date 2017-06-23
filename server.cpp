@@ -6,7 +6,11 @@
 
 #include "server.h"
 
+#include <mutex>
+
 using namespace std;
+
+mutex mtx;
 
 bool Server::verifyUser(std::string & user_name, std::string & password)
 {
@@ -114,7 +118,7 @@ bool Server::initSocket()
     return true;
 }
 
-bool Server::loadPlayers(const char* file_name)
+bool Server::loadPlayers()
 {
     std::ifstream fin(file_name);
     int num;        // 玩家个数
@@ -134,46 +138,74 @@ bool Server::loadPlayers(const char* file_name)
     return true;
 }
 
-bool setTestAlive(const int sockfd)
+void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
 {
-    const int keepalive = 1;      // 打开探测
-    const int keepidle  = 60;     // 开始探测前的空闲等待时间
-    const int keepintvl = 10;     // 发送探测分节的时间间隔
-    const int keepcnt   = 3;      // 发送探测分节的次数
+    std::ofstream fout(file_name);
+    fout << players.size() << endl;
 
-    if (setsockopt(sockfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&keepalive, sizeof (keepalive)) < 0)
+    for (auto it : update_dict)
     {
-        perror("fail to set SO_KEEPALIVE");
-        exit(-1);
+        int money = it.second;
+
+        // 获得原来过时的信息
+        PlayerInfo old_info = players[it.first];
+
+        // 构造新的信息
+        string password = std::get<0>(old_info);
+        PlayerInfo new_info = make_tuple(password, money);
+
+        // 更新信息
+        players[it.first] = new_info;
+
+        fout << it.first << "  " << password << "  " << money;
     }
-    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPIDLE, (char *) &keepidle, sizeof (keepidle)) < 0)
-    // {
-    //     perror("fail to set SO_KEEPIDLE");
-    //     exit(-1);
-    // }
-    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPINTVL, (char *)&keepintvl, sizeof (keepintvl)) < 0)
-    // {
-    //     perror("fail to set SO_KEEPINTVL");
-    //     exit(-1);
-    // }
-    // if (setsockopt(sockfd, SOL_TCP, TCP_KEEPCNT, (char *)&keepcnt, sizeof (keepcnt)) < 0)
-    // {
-    //     perror("fail to set SO_KEEPALIVE");
-    //     exit(-1);
-    // }
+
+    fout.close();
 }
 
-void* waitConnect(void* arg)
+bool setTestAlive(const int sockfd)
 {
-    Server* server = (Server*) arg;
-    char recv_buffer[512];
-    char send_buffer[512];
+    struct TCP_KEEPALIVE {  
+        u_long onoff;  
+        u_long keepalivetime;  
+        u_long keepaliveinterval;  
+    };
+
+    //KeepAlive实现  
+    TCP_KEEPALIVE inKeepAlive = {0}; //输入参数  
+    unsigned long ulInLen = sizeof(TCP_KEEPALIVE);  
+    TCP_KEEPALIVE outKeepAlive = {0}; //输出参数  
+    unsigned long ulOutLen = sizeof(TCP_KEEPALIVE);  
+    unsigned long ulBytesReturn = 0;
+
+    //设置socket的keep alive为5秒，并且发送次数为3次  
+    inKeepAlive.onoff = 1;
+    inKeepAlive.keepaliveinterval = 5000; //两次KeepAlive探测间的时间间隔
+    inKeepAlive.keepalivetime     = 5000; //开始首次KeepAlive探测前的TCP空闭时间
+    if (
+        WSAIoctl((unsigned int)sockfd,  
+        _WSAIOW(IOC_VENDOR,4),
+        (LPVOID)&inKeepAlive, ulInLen,
+        (LPVOID)&outKeepAlive, ulOutLen,  
+        &ulBytesReturn, NULL, NULL) == SOCKET_ERROR
+    )
+    {
+        perror("fail to set test_alive");
+        return false;
+    }
+
+    return true;
+}
+
+void Server::waitConnect()
+{
     while (true)
     {
         SOCKET csock;
-        if (!server->acceptConnect(csock))
+        if (!acceptConnect(csock))
         {
             // accept connection wrong
+            Sleep(10);      // 等待一段时间
             continue;
         }
 
@@ -187,6 +219,7 @@ void* waitConnect(void* arg)
             continue;
         }
 
+        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
         int ret = recv(csock, recv_buffer, 512, 0);
         if(ret > 0)
         {
@@ -218,15 +251,20 @@ void* waitConnect(void* arg)
         }
 
         // verify players name & password
-        if (!server->verifyUser(user_name, password))
+        if (!verifyUser(user_name, password))
         {
             PlayerSock _player(csock, user_name, 0);
             _player.sendData(Packet::rLogin(false));
             continue;
         }
 
-        int money = get<1>(server->players[user_name]);
-        cout << "client sock = " << csock << endl;
+        if (!setTestAlive(csock))
+        {
+            cout << "set csock test alive wrong" << endl;
+        }
+
+        int money = get<1>(players[user_name]);
+        // cout << "client sock = " << csock << endl;
         PlayerSock * new_player = new PlayerSock(csock, user_name, money);
 
         bool flag = new_player->sendData(Packet::rLogin(true, money));
@@ -235,103 +273,25 @@ void* waitConnect(void* arg)
         {
             cout << "cannot send login result" << endl;
         }
-
-        // std::vector<PlayerTuple> _tmp;
-        // std::string _arr[] = {"0", "1", "2", "3", "4", "5", "6", "7"};
-        // for (int i = 0; i < 6; ++i)
-        // {
-        //     _tmp.push_back(make_tuple(_arr[i], 100, false));
-        // }
-        // flag = new_player->sendData(Packet::room(1, _tmp));
         
-        server->hall.push_back(new_player);
-        std::cout << "Now hall has " << server->hall.size() << " players" << std::endl;
+        hall->insert(new_player);
+
+        std::cout << "Now hall has " << hall->size() << " players" << std::endl;
         // server->rooms[0]->append(csock);
-    }
-}
-
-void* hallThread(void* arg)
-{
-    Server* server = (Server*) arg;
-
-    while (true)
-    {
-        // std::cout << "hall thread run now" << std::endl;
-        for (auto it = server->hall.begin(); it != server->hall.end(); )
-        {
-            std::string packet = (*it)->recvData();
-            if (packet != "")
-            {
-                cout << "sock " << *it << " get a packet" << endl;
-                Json::Value root;
-                if (Packet::decode(packet, root) && root["type"] == ENTRY)
-                {
-                    // if root["room"]
-                    int room_id = root["room"].asInt();
-                    server->rooms[room_id].append(*it);
-                    it = server->hall.erase(it);
-                    (*it)->sendData(Packet::rEntry(true, room_id));
-                    (*it)->sendData(Packet::room(room_id, server->rooms[room_id].getPlayers(*it)));
-                    std::cout << "Now hall has " << server->hall.size() << " member" << std::endl;
-                }
-            }
-        }
-
-        Sleep(10);  // sleep 10ms
-    }
-}
-
-void* testConnect(void* arg)
-{
-    // test all hall's socket connections every 5 seconds
-    // if a socket is closed, remove it from the hall
-    Server* server = (Server*) arg;
-    while(true)
-    {
-        for (auto it = server->hall.begin(); it != server->hall.end(); )
-        {
-            // sock = *it
-            if ((*it)->testConnect())
-            {
-                cout << *it << " " << endl;
-                ++it;
-            }
-            else
-            {
-                // sock has been closed
-                delete (*it);
-                it = server->hall.erase(it);
-            }
-        }
-        // cout << "Now hall has " << server->hall.size() << " member" << endl;
-        // cout << endl;
-
-        // test all sockets connection every 5 seconds
-        sleep(5);
     }
 }
 
 void Server::run()
 {
-    // // create test connection thread
-    // pthread_t test_tid;
-    // pthread_create(&test_tid, NULL, testConnect, this);
+    // 启动大厅hall中的两个线程
+    hall->run();
 
-    // create wait connection thread
-    pthread_t wait_tid;
-    pthread_create(&wait_tid, NULL, waitConnect, this);
-
-    pthread_t hall_tid;
-    pthread_create(&hall_tid, NULL, hallThread, this);
-
-    void* tret;
-    pthread_join(wait_tid, &tret);
-    pthread_join(hall_tid, &tret);
-    // pthread_join(test_tid, &tret);
+    // 执行等待连接的函数
+    waitConnect();
 }
 
 int main(int argc, char* argv[])
 {
-    Server server;
+    Server server("./data/player_info.txt");
     server.run();
 }

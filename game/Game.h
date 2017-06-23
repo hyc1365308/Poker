@@ -46,7 +46,7 @@ class Game{
 	void     n_licensePlayer(Player*, Card & , Card & );
 	void     n_licensePublic(int, Card & );
 	void     n_fresh(); // TODO
-	void     n_showResult(Json::Value);
+	void     n_showResult(std::vector<std::tuple<int, Card, Card>>);
 public:
 	Game(std::vector<Player*> v, Room* r);
 	void start();

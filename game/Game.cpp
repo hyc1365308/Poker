@@ -23,10 +23,19 @@ Game::Game(std::vector<Player*> v, Room* r): _banker(v[0]), _presentPlayer(v[0])
 		v[i]->_lastPlayer = v[(i + length - 1) % length];
 	}
 	cout<<"init end"<<endl;
+<<<<<<< HEAD
 	//for (int i = 0; i < length; i++){
 	//	cout<<v[i]->_nextPlayer->_name<<endl;
 	//	cout<<v[i]->_lastPlayer->_name<<endl;
 	//}
+=======
+	for (int i = 0; i < length; i++){
+		cout<<v[i]->_nextPlayer->_name<<endl;
+		cout<<v[i]->_lastPlayer->_name<<endl;
+		cout<<v[i]->_money<<endl;
+	}
+
+>>>>>>> 45b792910fd11020fd755736ae7941a58abbcc33
 	cout << "room id is " << _room->get_id() << endl;
 }
 
@@ -84,8 +93,10 @@ void Game::init(){
 void Game::blindBet(){
 	cout<<"doing blindBet.....";
 	_presentPlayer->bet(MIN_BET);
+	_room->castOperate(_presentPlayer, REFUEL, _presentPlayer->_money, MIN_BET, true);
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_presentPlayer->bet(MIN_BET * 2);
+	_room->castOperate(_presentPlayer, REFUEL, _presentPlayer->_money, MIN_BET * 2, true);
 	_maxBetPlayer = _presentPlayer;
 	_presentPlayer = _presentPlayer->_nextPlayer;
 	_maxBet = MIN_BET * 2;
@@ -394,8 +405,7 @@ void Game::calcResult(){
 // show the game result
 // send the info to all players
 void Game::showResult(){
-	Json::Value root;
-	Json::Value json_player;
+	std::vector<std::tuple<int, Card, Card>> result;
 	Player* p = _presentPlayer;
 	do{
 		//p->_money += p->_gameResult;
@@ -405,18 +415,14 @@ void Game::showResult(){
 		else
 			cout<<"The player has folded"<<endl;
 
-		json_player["name"] = p->_name;
-		json_player["money"] = p->_money;
-		json_player["result"] = p->_gameResult;
-		json_player["fold"] = p->_fold;
-		if ( !p->_fold )
-			json_player["pattern"] = p->_pattern.toJsonObject();
-		else
-			json_player["pattern"] = Pattern::foldPattern();
-		root.append(json_player);
+		int cur_money = p->_money;
+		Card card1    = p->_card[0];
+		Card card2    = p->_card[1];
+
+		result.push_back(make_tuple(cur_money, card1, card2));
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
-	n_showResult(root);
+	n_showResult(result);
 }
 
 //-------------------------- network interfaces -----------------------------------
@@ -427,7 +433,7 @@ Json::Value Game::n_getOperate(Player* p){
 
 void Game::n_castOperate(Player* p, Operate* op){
 	//send bet operate to all players
-	return _room->castOperate(p, op->getType(), p->_presentBet, op->getMoney());
+	return _room->castOperate(p, op->getType(), p->_money, p->_presentBet);
 }
 
 void Game::n_licensePlayer(Player* p, Card & c1, Card & c2){
@@ -448,11 +454,11 @@ void Game::n_fresh(){
 	//int    _presentBet
 }
 
-void Game::n_showResult(Json::Value gameResult){
+void Game::n_showResult(std::vector<std::tuple<int, Card, Card>> result){
 	//tell all Players about game result
 	//int    _money
 	//int    _gameResult(record the money changes in this game)
-	_room->showResult(gameResult);
+	_room->showResult(result);
 }
 
 
