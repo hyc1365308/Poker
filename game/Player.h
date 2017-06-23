@@ -1,5 +1,5 @@
 //
-//   by DarkProbe
+//   by Huang Yueqin
 //   2017-4-15
 //
 
@@ -16,8 +16,8 @@ class Player{
 	friend class Game;
 	string _name;
 	int    _money;
-	int    _presentBet;
-	int	   _gameResult;
+	int    _presentBet;//bet money in this game
+	int	   _gameResult;//money change in this game
 	bool   _mark;//used in game result calculation
 
 	bool   _fold;
