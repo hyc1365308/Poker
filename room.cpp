@@ -144,6 +144,12 @@ void Room::removeAll()
      * 功能 : 移除所有用户，并将其添加到大厅中
     */
 
+    for (auto player : players_)
+    {
+        hall_->insert(player);
+    }
+
+    players_.clear();
 }
 
 Json::Value Room::getOperate(Player* player, const int cur_max_money)
@@ -302,16 +308,6 @@ void Room::showResult(std::vector<std::tuple<int, Card, Card>> in_result)
     // server_->updatePlayerInfo(update_dict);
 }
 
-/*void Room::showResult(Json::Value gameResult)
-{
-
-    std::cout << "send game result now" << std::endl;
-    std::string root = Packet::showResult(gameResult);
-    for (auto sock : players_)
-    {
-        sock->sendData(root);
-    }
-}*/
 
 /*
  * 类友元函数

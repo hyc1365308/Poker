@@ -12,11 +12,15 @@
 #include "packet.h"
 #include "./game/Game.h"
 
+#include "hall.h"
+
 #include <mutex>
 
 // 每个房间最大用户数
 #define MAX_PLAYER_NUM 8
 #define MIN_PLAYER_NUM 3
+
+class Hall;
 
 class Room
 {
@@ -27,6 +31,7 @@ private:
     pthread_t tid_;         // 本房间线程id
     bool run_now;           // 房间当前是否正在进行游戏
     // Server * server_;
+    Hall* hall_;
 
     std::vector<PlayerSock*> players_;  // 本房间所有玩家
     std::mutex mtx_;                    // 本房间线程锁
@@ -90,6 +95,8 @@ public:
      * 一些简短的只用于获取room内部信息的内联函数
     */
     
+    void set_hall(Hall* hall) { hall_ = hall; }
+
     // 获取编号
     int get_id() const { return id_; }
     // 获取当前用户数

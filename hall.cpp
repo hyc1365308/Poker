@@ -69,9 +69,7 @@ void* waitEntry(void* arg)
                         hall->mtx_.lock();
                         std::cout << "erase " << (*it) << std::endl;
                         it = hall->player_sets_.erase(it);
-                        std::cout << "erase done\n";
                         hall->mtx_.unlock();
-
                         std::cout << "Now hall has " << hall->size() << " member" << std::endl;
                     }
                 }

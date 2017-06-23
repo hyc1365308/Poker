@@ -61,8 +61,13 @@ private:
         {
             rooms[i] = new Room();
         }
-        
+
         hall = new Hall(rooms, ROOM_NUM);
+
+        for (int i = 0; i < ROOM_NUM; ++i)
+        {
+            rooms[i]->set_hall(hall);
+        }
     }
 
     bool initSocket();     // 初始化socket连接

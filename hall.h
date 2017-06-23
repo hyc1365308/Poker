@@ -28,9 +28,10 @@ public:
     bool insert(PlayerSock * new_player)
     {
         mtx_.lock();
-
+        std::cout << "insert a new player into the hall\n";
+        std::cout << "player " << new_player << std::endl;
+        std::cout << "now hall has " << player_sets_.size() << " players\n";
         player_sets_.insert(new_player);
-
         mtx_.unlock();
     }
 
