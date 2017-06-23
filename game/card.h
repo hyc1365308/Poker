@@ -1,8 +1,9 @@
-/*
- * Author   : Feng Yulin
- * Time     : 2017-04-18(1st)
- * Function : Define poker card struct
-*/
+/************************************************
+ * 名称 : card.h
+ * 作者 : 冯瑜林
+ * 时间 : 2017-04-18(1st)
+ * 内容 : 纸牌类实现文件
+************************************************/
 
 #ifndef CARD_H
 #define CARD_H
@@ -12,18 +13,24 @@
 #include <assert.h>
 #include <string.h>
 
+/*
+ * 花色，一共四种
+*/
 enum Suit
 {
-    HEARTS = 0, 
-    DIAMONDS = 1, 
-    CLUB = 2, 
-    SPADE = 3
+    HEARTS = 0,     // 红桃
+    DIAMONDS = 1,   // 方块
+    CLUB = 2,       // 梅花
+    SPADE = 3       // 黑桃
 };
 
+/*
+ * 一张牌
+*/
 struct Card
 {
-    Suit suit;
-    int num;        // from 1 to 13
+    Suit suit;      // 花色
+    int num;        // 牌的大小，从1到13
     Card() {}
     Card(const int s, const int n)
     {
@@ -31,9 +38,13 @@ struct Card
         num = n;
     }
 
+    // 这里由于Card中的运算符比较经常被使用，
+    // 故全部设为内联函数，以减少调用开销
+
     bool operator< (const Card & right)
     {
-        // compare two card by num(A,2,3,...,K)
+        // 比较大小，注意，1(A)最大，2最小
+
         if (num == 1)
         {
             return false;
@@ -49,7 +60,8 @@ struct Card
 
     bool operator> (const Card & right)
     {
-        // compare two card by num(A,2,3,...,K)
+        // 比较大小，注意，1(A)最大，2最小
+
         if (right.num == 1)
         {
             return false;
@@ -75,6 +87,7 @@ struct Card
 
     int operator- (const Card & right)
     {
+        // A 看作 14
         // left.num - right.num, A = 14
         if (num == 1 && right.num != 1)
         {
@@ -117,6 +130,9 @@ struct Card
 
     friend std::ostream & operator<< (std::ostream & out, const Card c)
     {
+        /*
+         * 打印输出，输出格式类似 H4，代表红桃4
+        */
         std::string suit_str;
         switch (c.suit)
         {
@@ -143,6 +159,7 @@ struct Card
 
     int toInt()
     {
+        // 将Card转换成从 0 到 51 的一个整数
         return suit * 13 + num - 1;
     }
 };

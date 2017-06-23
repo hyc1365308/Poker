@@ -1,8 +1,9 @@
-/*
- * Author   :   Feng Yulin
- * Time     :   2017-04-07(1st), 2017-05-03(2nd)
- * Function :   Compare two hands
-*/
+/************************************************
+ * 名称 : pattern.h
+ * 作者 : 冯瑜林
+ * 时间 : 2017-04-07(1st), 2017-05-03(2nd)
+ * 内容 : 给出一组手牌，获取其对应类型及牌面
+************************************************/
 
 #include "pattern.h"
 
@@ -23,15 +24,16 @@ void swap(T & a, T & b)
 Pattern getPattern(Card* in_hand)
 {
     /*
-     * hand: Card array(7 cards)
+     * in_hand : 大小为 7 的 Card 数组
     */
+
     Card hand[7];
     for (int i = 0; i < 7; ++i)
     {
         hand[i] = in_hand[i];
     }
 
-    // sort hand(reverse sequence)
+    // 逆序对原数组进行排序
     for (int i = 0; i < 6; ++i)
     {
         for (int j = i + 1; j < 7; ++j)
@@ -43,14 +45,7 @@ Pattern getPattern(Card* in_hand)
         }
     }
 
-    // @debug
-    cout << "Sorted cards:";
-    for (int i = 0; i < 7; ++i)
-    {
-        cout << hand[i] << " ";
-    }
-    cout << endl;
-
+    // 要返回的Pattern对象
     Pattern pat;
 
     vector<Card> suit_arr[4];
@@ -291,6 +286,10 @@ Pattern getPattern(Card* in_hand)
 
 void test_get_pattern()
 {
+    /*
+     * 功能 : 测试 getPattern 函数
+    */
+
     Card c[] = {
         Card(1, 1),
         Card(1, 2),
@@ -349,6 +348,9 @@ void test_get_pattern()
 
 void test_get_pattern2()
 {
+    /*
+     * 另一组测试函数
+    */
     Card c2[] = {
         Card(2,1),
         Card(1,13),
@@ -358,6 +360,7 @@ void test_get_pattern2()
         Card(1,8),
         Card(1,3)
     };
+
     cout<<getPattern(c2)<<endl;
 }
 
