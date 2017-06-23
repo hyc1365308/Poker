@@ -2,7 +2,7 @@
  * 名称 : room.h
  * 作者 : 冯瑜林
  * 时间 : 2017-05-12(1st)、2017-6-20(last)
- * 内容 : 房间类头文件
+ * 内容 : 用户连接类
 ************************************************/
 
 #ifndef PLAYER_SOCK_H
@@ -17,13 +17,18 @@
 
 #include "packet.h"
 
+// 缓冲区大小
 #define BUFFER_SIZE 512
 
 class PlayerSock
 {
+    /*
+     * 该类为用户连接类，主要作用是管理与用户的连接
+     *     所有与用户的通信及其他相关功能都是通过该类完成的
+    */
 private:
-    std::string id;             // user id(user name)
-    int money;                  // user money
+    std::string id;             // 用户ID
+    int money;                  // 用户当前金额(每轮游戏后更新)
     // sockaddr_in addr;        // address, in case of need
     const SOCKET sock;
 
@@ -102,6 +107,7 @@ public:
 
     std::string get_id() const { return id; }
     int get_money() const { return money; }
+    void set_money(const int money) { this->money = money; }
 };
 
 #endif

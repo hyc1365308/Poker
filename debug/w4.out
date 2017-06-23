@@ -1,0 +1,2732 @@
+g++ -std=c++11   -c -o game/Player.o game/Player.cpp
+g++ -std=c++11   -c -o game/Game.o game/Game.cpp
+g++ -std=c++11 -c room.cpp -o room.o
+g++ ./lib_json/json_reader.o ./lib_json/json_writer.o ./lib_json/json_value.o ./game/Player.o ./game/Game.o ./game/Operate.o room.o hall.o server.cpp -lws2_32 -o server2
+
+Read players data
+Num     id     password     money
+  0     test     12345678 1000000
+  1     poor        12334   10000
+  2        1            1   10000
+  3        2            2   20000
+  4        3            3   30000
+  5        4            4   40000
+  6        5            5   50000
+  7        6            6   60000
+  8        7            7   70000
+  9        8            8   80000
+ 10        9            9   90000
+ 11       10           10 1000000
+ 12  player1      1234567  100000
+ 13  player2      1234567  200000
+ 14  player3      1234567  300000
+ 15  player4      1234567  400000
+ 16  player5      1234567  500000
+ 17  player6      1234567  600000
+Room 0 is created
+Room 1 is created
+Room 2 is created
+Room 3 is created
+Room 4 is created
+Room 5 is created
+Room 6 is created
+Room 7 is created
+Room 8 is created
+Room 9 is created
+Room 10 is created
+server is running now
+hall thread is running
+
+Waiting for connecting...
+Connect a client 59.66.131.74:51685
+Recv : {
+   "password" : "1",
+   "type" : 1,
+   "username" : "1"
+}
+#$#
+verify user
+        username: 1
+        password: 1
+
+A new player login now
+player id = 1, sock = 292
+
+Send 1
+{
+   "money" : 10000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 59
+insert a new player into the hall
+player user id: 1, socket num = 292
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv 1
+{
+   "room" : 1,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: 1, socket num = 292 get a packet
+Room 1 join a new player
+
+Send 1
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 1
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : true,
+         "money" : 10000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 148
+erase user id: 1, socket num = 292
+Now hall has 0 member
+Connect a client 59.66.131.74:52197
+Recv : {
+   "password" : "1234567",
+   "type" : 1,
+   "username" : "player3"
+}
+#$#
+verify user
+        username: player3
+        password: 1234567
+
+A new player login now
+player id = player3, sock = 304
+
+Send player3
+{
+   "money" : 300000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 60
+insert a new player into the hall
+player user id: player3, socket num = 304
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv player3
+{
+   "room" : 1,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: player3, socket num = 304 get a packet
+Room 1 join a new player
+
+Send 1
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 1
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : true,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 244
+
+Send player3
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send player3
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : true,
+         "money" : 300000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 244
+erase user id: player3, socket num = 304
+Now hall has 0 member
+Connect a client 59.66.131.74:52453
+Recv : {
+   "password" : "9",
+   "type" : 1,
+   "username" : "9"
+}
+#$#
+verify user
+        username: 9
+        password: 9
+
+A new player login now
+player id = 9, sock = 308
+
+Send 9
+{
+   "money" : 90000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 59
+insert a new player into the hall
+player user id: 9, socket num = 308
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv 9
+{
+   "room" : 1,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: 9, socket num = 308 get a packet
+Room 1 join a new player
+
+Send 1
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 1
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : true,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 333
+
+Send player3
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send player3
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : true,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 333
+
+Send 9
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 9
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : true,
+         "money" : 90000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 333
+erase user id: 9, socket num = 308
+Now hall has 0 member
+Connect a client 59.66.131.74:52709
+Recv : {
+   "password" : "10",
+   "type" : 1,
+   "username" : "10"
+}
+#$#
+verify user
+        username: 10
+        password: 10
+
+A new player login now
+player id = 10, sock = 312
+
+Send 10
+{
+   "money" : 1000000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 61
+insert a new player into the hall
+player user id: 10, socket num = 312
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv 10
+{
+   "room" : 1,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: 10, socket num = 312 get a packet
+Room 1 join a new player
+
+Send 1
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 1
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : true,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 425
+
+Send player3
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send player3
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : true,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 425
+
+Send 9
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 9
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : true,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 425
+
+Send 10
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 10
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : true,
+         "money" : 1000000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 425
+erase user id: 10, socket num = 312
+Now hall has 0 member
+Connect a client 59.66.131.74:52965
+Recv : {
+   "password" : "4",
+   "type" : 1,
+   "username" : "4"
+}
+#$#
+verify user
+        username: 4
+        password: 4
+
+A new player login now
+player id = 4, sock = 316
+
+Send 4
+{
+   "money" : 40000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 59
+insert a new player into the hall
+player user id: 4, socket num = 316
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv 4
+{
+   "room" : 1,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: 4, socket num = 316 get a packet
+Room 1 join a new player
+
+Send 1
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 1
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : true,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      },
+      {
+         "id" : "4",
+         "is_in" : false,
+         "money" : 40000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 514
+
+Send player3
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send player3
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : true,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      },
+      {
+         "id" : "4",
+         "is_in" : false,
+         "money" : 40000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 514
+
+Send 9
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 9
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : true,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      },
+      {
+         "id" : "4",
+         "is_in" : false,
+         "money" : 40000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 514
+
+Send 10
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 10
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : true,
+         "money" : 1000000
+      },
+      {
+         "id" : "4",
+         "is_in" : false,
+         "money" : 40000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 514
+
+Send 4
+{
+   "result" : 1,
+   "room" : 1,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 4
+{
+   "room_id" : 1,
+   "seat" : [
+      {
+         "id" : "1",
+         "is_in" : false,
+         "money" : 10000
+      },
+      {
+         "id" : "player3",
+         "is_in" : false,
+         "money" : 300000
+      },
+      {
+         "id" : "9",
+         "is_in" : false,
+         "money" : 90000
+      },
+      {
+         "id" : "10",
+         "is_in" : false,
+         "money" : 1000000
+      },
+      {
+         "id" : "4",
+         "is_in" : true,
+         "money" : 40000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 514
+erase user id: 4, socket num = 316
+Now hall has 0 member
+Room 1 has 5 players
+Now begin a new game
+init end
+player3 4 10000
+9 1 300000
+10 player3 90000
+4 9 1000000
+1 10 40000
+room id is 1
+money = 10000
+money = 300000
+money = 90000
+money = 1000000
+money = 40000
+doing blindBet.....
+Send 1
+{
+   "money_left" : 9900,
+   "money_op" : 100,
+   "player_op" : 10,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send player3
+{
+   "money_left" : 9900,
+   "money_op" : 100,
+   "player_op" : 10,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 9
+{
+   "money_left" : 9900,
+   "money_op" : 100,
+   "player_op" : 10,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 10
+{
+   "money_left" : 9900,
+   "money_op" : 100,
+   "player_op" : 10,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 4
+{
+   "money_left" : 9900,
+   "money_op" : 100,
+   "player_op" : 10,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 1
+{
+   "money_left" : 299800,
+   "money_op" : 200,
+   "player_op" : 10,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send player3
+{
+   "money_left" : 299800,
+   "money_op" : 200,
+   "player_op" : 10,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 9
+{
+   "money_left" : 299800,
+   "money_op" : 200,
+   "player_op" : 10,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 10
+{
+   "money_left" : 299800,
+   "money_op" : 200,
+   "player_op" : 10,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 4
+{
+   "money_left" : 299800,
+   "money_op" : 200,
+   "player_op" : 10,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+done
+doing lcsPlayer...send license info now
+now send message 9
+
+Send 9
+{
+   "card" : 31,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 9
+
+Send 9
+{
+   "card" : 16,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 10
+
+Send 10
+{
+   "card" : 46,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 10
+
+Send 10
+{
+   "card" : 26,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 4
+
+Send 4
+{
+   "card" : 10,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 4
+
+Send 4
+{
+   "card" : 1,
+   "type" : 19
+}
+#$#       ret = 38
+send license info now
+now send message 1
+
+Send 1
+{
+   "card" : 30,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message 1
+
+Send 1
+{
+   "card" : 6,
+   "type" : 19
+}
+#$#       ret = 38
+send license info now
+now send message player3
+
+Send player3
+{
+   "card" : 12,
+   "type" : 19
+}
+#$#       ret = 39
+send license info now
+now send message player3
+
+Send player3
+{
+   "card" : 18,
+   "type" : 19
+}
+#$#       ret = 39
+done
+doing betTurn.....5
+ready for operate...
+
+Now turn to player 9
+
+Send 9
+{
+   "cur_max_money" : 200,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 9
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 200!
+
+Send 1
+{
+   "money_left" : 89800,
+   "money_op" : 200,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send player3
+{
+   "money_left" : 89800,
+   "money_op" : 200,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 10
+{
+   "money_left" : 89800,
+   "money_op" : 200,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 4
+{
+   "money_left" : 89800,
+   "money_op" : 200,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+name:9
+_money: 89800, _presentBet: 200, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: C6, D4
+
+5
+ready for operate...
+
+Now turn to player 10
+
+Send 10
+{
+   "cur_max_money" : 200,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 10
+{
+   "money" : 400,
+   "type" : 10
+}
+#$#       ret = 40
+get operation done
+done
+Bet 400!
+
+Send 1
+{
+   "money_left" : 999600,
+   "money_op" : 400,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send player3
+{
+   "money_left" : 999600,
+   "money_op" : 400,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 9
+{
+   "money_left" : 999600,
+   "money_op" : 400,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 4
+{
+   "money_left" : 999600,
+   "money_op" : 400,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+name:10
+_money: 999600, _presentBet: 400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+5
+ready for operate...
+
+Now turn to player 4
+
+Send 4
+{
+   "cur_max_money" : 400,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 4
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 400!
+
+Send 1
+{
+   "money_left" : 39600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send player3
+{
+   "money_left" : 39600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 9
+{
+   "money_left" : 39600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 10
+{
+   "money_left" : 39600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 111
+name:4
+_money: 39600, _presentBet: 400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+5
+ready for operate...
+
+Now turn to player 1
+
+Send 1
+{
+   "cur_max_money" : 400,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 1
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 300!
+
+Send player3
+{
+   "money_left" : 9600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 9
+{
+   "money_left" : 9600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 10
+{
+   "money_left" : 9600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+
+Send 4
+{
+   "money_left" : 9600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 110
+name:1
+_money: 9600, _presentBet: 400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: C5, H7
+
+5
+ready for operate...
+
+Now turn to player player3
+
+Send player3
+{
+   "cur_max_money" : 400,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv player3
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 200!
+
+Send 1
+{
+   "money_left" : 299600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 9
+{
+   "money_left" : 299600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 10
+{
+   "money_left" : 299600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 4
+{
+   "money_left" : 299600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 112
+name:player3
+_money: 299600, _presentBet: 400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H13, D6
+
+5
+ready for operate...
+
+Now turn to player 9
+
+Send 9
+{
+   "cur_max_money" : 400,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 9
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 200!
+
+Send 1
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send player3
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 10
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 4
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 11,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+name:9
+_money: 89600, _presentBet: 400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: C6, D4
+
+done
+Flop
+doing lcsPublic...send public license info now
+
+Send 1
+{
+   "card" : 23,
+   "index" : 1,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send player3
+{
+   "card" : 23,
+   "index" : 1,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 9
+{
+   "card" : 23,
+   "index" : 1,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 10
+{
+   "card" : 23,
+   "index" : 1,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 4
+{
+   "card" : 23,
+   "index" : 1,
+   "type" : 20
+}
+#$#       ret = 55
+done
+doing lcsPublic...send public license info now
+
+Send 1
+{
+   "card" : 24,
+   "index" : 2,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send player3
+{
+   "card" : 24,
+   "index" : 2,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 9
+{
+   "card" : 24,
+   "index" : 2,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 10
+{
+   "card" : 24,
+   "index" : 2,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 4
+{
+   "card" : 24,
+   "index" : 2,
+   "type" : 20
+}
+#$#       ret = 55
+done
+doing lcsPublic...send public license info now
+
+Send 1
+{
+   "card" : 45,
+   "index" : 3,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send player3
+{
+   "card" : 45,
+   "index" : 3,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 9
+{
+   "card" : 45,
+   "index" : 3,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 10
+{
+   "card" : 45,
+   "index" : 3,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 4
+{
+   "card" : 45,
+   "index" : 3,
+   "type" : 20
+}
+#$#       ret = 55
+done
+doing betTurn.....5
+ready for operate...
+
+Now turn to player 10
+
+Send 10
+{
+   "cur_max_money" : 400,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 10
+{
+   "money" : 200,
+   "type" : 10
+}
+#$#       ret = 40
+get operation done
+done
+Bet 200!
+
+Send 1
+{
+   "money_left" : 999400,
+   "money_op" : 600,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send player3
+{
+   "money_left" : 999400,
+   "money_op" : 600,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 9
+{
+   "money_left" : 999400,
+   "money_op" : 600,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 4
+{
+   "money_left" : 999400,
+   "money_op" : 600,
+   "player_op" : 10,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 112
+name:10
+_money: 999400, _presentBet: 600, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+5
+ready for operate...
+
+Now turn to player 4
+
+Send 4
+{
+   "cur_max_money" : 600,
+   "type" : 15
+}
+#$#       ret = 49
+
+Recv 4
+{
+   "money" : 2000,
+   "type" : 10
+}
+#$#       ret = 41
+get operation done
+done
+Bet 2000!
+
+Send 1
+{
+   "money_left" : 37600,
+   "money_op" : 2400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send player3
+{
+   "money_left" : 37600,
+   "money_op" : 2400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 9
+{
+   "money_left" : 37600,
+   "money_op" : 2400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 112
+
+Send 10
+{
+   "money_left" : 37600,
+   "money_op" : 2400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 112
+name:4
+_money: 37600, _presentBet: 2400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+5
+ready for operate...
+
+Now turn to player 1
+
+Send 1
+{
+   "cur_max_money" : 2400,
+   "type" : 15
+}
+#$#       ret = 50
+
+Recv 1
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 2000!
+
+Send player3
+{
+   "money_left" : 7600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 9
+{
+   "money_left" : 7600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 10
+{
+   "money_left" : 7600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 4
+{
+   "money_left" : 7600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 111
+name:1
+_money: 7600, _presentBet: 2400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: C5, H7
+
+5
+ready for operate...
+
+Now turn to player player3
+
+Send player3
+{
+   "cur_max_money" : 2400,
+   "type" : 15
+}
+#$#       ret = 50
+
+Recv player3
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 2000!
+
+Send 1
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 9
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 10
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 4
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+name:player3
+_money: 297600, _presentBet: 2400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H13, D6
+
+5
+ready for operate...
+
+Now turn to player 9
+
+Send 9
+{
+   "cur_max_money" : 2400,
+   "type" : 15
+}
+#$#       ret = 50
+
+Recv 9
+{
+   "type" : 12
+}
+#$#       ret = 22
+get operation done
+done
+FOLD
+
+Send 1
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 12,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send player3
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 12,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 10
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 12,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+
+Send 4
+{
+   "money_left" : 89600,
+   "money_op" : 400,
+   "player_op" : 12,
+   "player_pos" : 2,
+   "type" : 16
+}
+#$#       ret = 111
+name:9
+_money: 89600, _presentBet: 400, _gameResult: 0
+_fold : 1,      _allin: 0
+Card: C6, D4
+
+4
+ready for operate...
+
+Now turn to player 10
+
+Send 10
+{
+   "cur_max_money" : 2400,
+   "type" : 15
+}
+#$#       ret = 50
+
+Recv 10
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 1800!
+
+Send 1
+{
+   "money_left" : 997600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send player3
+{
+   "money_left" : 997600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 9
+{
+   "money_left" : 997600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 4
+{
+   "money_left" : 997600,
+   "money_op" : 2400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 113
+name:10
+_money: 997600, _presentBet: 2400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+done
+Turn
+doing lcsPublic...send public license info now
+
+Send 1
+{
+   "card" : 32,
+   "index" : 4,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send player3
+{
+   "card" : 32,
+   "index" : 4,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 9
+{
+   "card" : 32,
+   "index" : 4,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 10
+{
+   "card" : 32,
+   "index" : 4,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 4
+{
+   "card" : 32,
+   "index" : 4,
+   "type" : 20
+}
+#$#       ret = 55
+done
+doing betTurn.....4
+ready for operate...
+
+Now turn to player 4
+
+Send 4
+{
+   "cur_max_money" : 2400,
+   "type" : 15
+}
+#$#       ret = 50
+
+Recv 4
+{
+   "money" : 10000,
+   "type" : 10
+}
+#$#       ret = 42
+get operation done
+done
+Bet 10000!
+
+Send 1
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send player3
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 9
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 10
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 10,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+name:4
+_money: 27600, _presentBet: 12400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+4
+ready for operate...
+
+Now turn to player 1
+
+Send 1
+{
+   "cur_max_money" : 12400,
+   "type" : 15
+}
+#$#       ret = 51
+
+Recv 1
+{
+   "type" : 13
+}
+#$#       ret = 22
+get operation done
+done
+ALLIN!
+
+Send player3
+{
+   "money_left" : 0,
+   "money_op" : 10000,
+   "player_op" : 13,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 109
+
+Send 9
+{
+   "money_left" : 0,
+   "money_op" : 10000,
+   "player_op" : 13,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 109
+
+Send 10
+{
+   "money_left" : 0,
+   "money_op" : 10000,
+   "player_op" : 13,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 109
+
+Send 4
+{
+   "money_left" : 0,
+   "money_op" : 10000,
+   "player_op" : 13,
+   "player_pos" : 0,
+   "type" : 16
+}
+#$#       ret = 109
+name:1
+_money: 0, _presentBet: 10000, _gameResult: 0
+_fold : 0,      _allin: 1
+Card: C5, H7
+
+3
+ready for operate...
+
+Now turn to player player3
+
+Send player3
+{
+   "cur_max_money" : 12400,
+   "type" : 15
+}
+#$#       ret = 51
+
+Recv player3
+{
+   "type" : 12
+}
+#$#       ret = 22
+get operation done
+done
+FOLD
+
+Send 1
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 12,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 9
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 12,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 10
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 12,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 4
+{
+   "money_left" : 297600,
+   "money_op" : 2400,
+   "player_op" : 12,
+   "player_pos" : 1,
+   "type" : 16
+}
+#$#       ret = 113
+name:player3
+_money: 297600, _presentBet: 2400, _gameResult: 0
+_fold : 1,      _allin: 0
+Card: H13, D6
+
+2
+2
+ready for operate...
+
+Now turn to player 10
+
+Send 10
+{
+   "cur_max_money" : 12400,
+   "type" : 15
+}
+#$#       ret = 51
+
+Recv 10
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 10000!
+
+Send 1
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send player3
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send 9
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send 4
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+name:10
+_money: 987600, _presentBet: 12400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+done
+River
+doing lcsPublic...send public license info now
+
+Send 1
+{
+   "card" : 42,
+   "index" : 5,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send player3
+{
+   "card" : 42,
+   "index" : 5,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 9
+{
+   "card" : 42,
+   "index" : 5,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 10
+{
+   "card" : 42,
+   "index" : 5,
+   "type" : 20
+}
+#$#       ret = 55
+
+Send 4
+{
+   "card" : 42,
+   "index" : 5,
+   "type" : 20
+}
+#$#       ret = 55
+done
+doing betTurn.....2
+ready for operate...
+
+Now turn to player 4
+
+Send 4
+{
+   "cur_max_money" : 12400,
+   "type" : 15
+}
+#$#       ret = 51
+
+Recv 4
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 0!
+
+Send 1
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send player3
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 9
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+
+Send 10
+{
+   "money_left" : 27600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 4,
+   "type" : 16
+}
+#$#       ret = 113
+name:4
+_money: 27600, _presentBet: 12400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+2
+2
+2
+2
+ready for operate...
+
+Now turn to player 10
+
+Send 10
+{
+   "cur_max_money" : 12400,
+   "type" : 15
+}
+#$#       ret = 51
+
+Recv 10
+{
+   "type" : 11
+}
+#$#       ret = 22
+get operation done
+done
+Bet 0!
+
+Send 1
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send player3
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send 9
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+
+Send 4
+{
+   "money_left" : 987600,
+   "money_op" : 12400,
+   "player_op" : 11,
+   "player_pos" : 3,
+   "type" : 16
+}
+#$#       ret = 114
+name:10
+_money: 987600, _presentBet: 12400, _gameResult: 0
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+done
+CalcPattern
+calculating pattern...Sorted cards:D12 D11 H11 C7 S7 S4 H2
+Sorted cards:D12 D11 S7 C7 H7 C5 S4
+Sorted cards:C1 D12 D11 S8 S7 C7 S4
+done
+CalcResult
+flag1
+flag2
+flag3
+allin
+name:1
+_money: 0, _presentBet: 0, _gameResult: -10000
+_fold : 0,      _allin: 1
+Card: C5, H7
+
+name:player3
+_money: 297600, _presentBet: 0, _gameResult: -2400
+_fold : 1,      _allin: 0
+Card: H13, D6
+
+name:9
+_money: 89600, _presentBet: 0, _gameResult: -400
+_fold : 1,      _allin: 0
+Card: C6, D4
+
+name:10
+_money: 990000, _presentBet: 2400, _gameResult: -10000
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+name:4
+_money: 30000, _presentBet: 2400, _gameResult: -10000
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+flag4
+the biggest pattern is :5 THREE_OF_A_KIND S7 C7 H7 D12 D11
+
+allin_calc
+name:1
+_money: 32800, _presentBet: 0, _gameResult: 22800
+_fold : 0,      _allin: 1
+Card: C5, H7
+
+allin_calc
+name:10
+_money: 990000, _presentBet: 2400, _gameResult: -10000
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+allin_calc
+name:4
+_money: 30000, _presentBet: 2400, _gameResult: -10000
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+flag1
+flag2
+No allin
+name:1
+_money: 32800, _presentBet: 0, _gameResult: 22800
+_fold : 0,      _allin: 1
+Card: C5, H7
+
+name:player3
+_money: 297600, _presentBet: 0, _gameResult: -2400
+_fold : 1,      _allin: 0
+Card: H13, D6
+
+name:9
+_money: 89600, _presentBet: 0, _gameResult: -400
+_fold : 1,      _allin: 0
+Card: C6, D4
+
+the biggest pattern is :6 TWO_PAIR D11 H11 C7 S7 D12
+
+no allin_calc
+name:4
+_money: 32400, _presentBet: 0, _gameResult: -7600
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+no allin_calc
+name:10
+_money: 987600, _presentBet: 0, _gameResult: -12400
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+name:4
+_money: 32400, _presentBet: 0, _gameResult: -7600
+_fold : 0,      _allin: 0
+Card: H11, H2
+
+6 TWO_PAIR D11 H11 C7 S7 D12
+
+name:1
+_money: 32800, _presentBet: 0, _gameResult: 22800
+_fold : 0,      _allin: 1
+Card: C5, H7
+
+5 THREE_OF_A_KIND S7 C7 H7 D12 D11
+
+name:player3
+_money: 297600, _presentBet: 0, _gameResult: -2400
+_fold : 1,      _allin: 0
+Card: H13, D6
+
+The player has folded
+name:9
+_money: 89600, _presentBet: 0, _gameResult: -400
+_fold : 1,      _allin: 0
+Card: C6, D4
+
+The player has folded
+name:10
+_money: 987600, _presentBet: 0, _gameResult: -12400
+_fold : 0,      _allin: 0
+Card: S8, C1
+
+7 ONE_PAIR S7 C7 C1 D12 D11
+
+
+Send 1
+{
+   "type" : 21,
+   "value" : [
+      {
+         "card1" : 10,
+         "card2" : 1,
+         "money" : 32400
+      },
+      {
+         "card1" : 30,
+         "card2" : 6,
+         "money" : 32800
+      },
+      {
+         "card1" : 12,
+         "card2" : 18,
+         "money" : 297600
+      },
+      {
+         "card1" : 31,
+         "card2" : 16,
+         "money" : 89600
+      },
+      {
+         "card1" : 46,
+         "card2" : 26,
+         "money" : 987600
+      }
+   ]
+}
+#$#       ret = 483
+
+Send player3
+{
+   "type" : 21,
+   "value" : [
+      {
+         "card1" : 10,
+         "card2" : 1,
+         "money" : 32400
+      },
+      {
+         "card1" : 30,
+         "card2" : 6,
+         "money" : 32800
+      },
+      {
+         "card1" : 12,
+         "card2" : 18,
+         "money" : 297600
+      },
+      {
+         "card1" : 31,
+         "card2" : 16,
+         "money" : 89600
+      },
+      {
+         "card1" : 46,
+         "card2" : 26,
+         "money" : 987600
+      }
+   ]
+}
+#$#       ret = 483
+
+Send 9
+{
+   "type" : 21,
+   "value" : [
+      {
+         "card1" : 10,
+         "card2" : 1,
+         "money" : 32400
+      },
+      {
+         "card1" : 30,
+         "card2" : 6,
+         "money" : 32800
+      },
+      {
+         "card1" : 12,
+         "card2" : 18,
+         "money" : 297600
+      },
+      {
+         "card1" : 31,
+         "card2" : 16,
+         "money" : 89600
+      },
+      {
+         "card1" : 46,
+         "card2" : 26,
+         "money" : 987600
+      }
+   ]
+}
+#$#       ret = 483
+
+Send 10
+{
+   "type" : 21,
+   "value" : [
+      {
+         "card1" : 10,
+         "card2" : 1,
+         "money" : 32400
+      },
+      {
+         "card1" : 30,
+         "card2" : 6,
+         "money" : 32800
+      },
+      {
+         "card1" : 12,
+         "card2" : 18,
+         "money" : 297600
+      },
+      {
+         "card1" : 31,
+         "card2" : 16,
+         "money" : 89600
+      },
+      {
+         "card1" : 46,
+         "card2" : 26,
+         "money" : 987600
+      }
+   ]
+}
+#$#       ret = 483
+
+Send 4
+{
+   "type" : 21,
+   "value" : [
+      {
+         "card1" : 10,
+         "card2" : 1,
+         "money" : 32400
+      },
+      {
+         "card1" : 30,
+         "card2" : 6,
+         "money" : 32800
+      },
+      {
+         "card1" : 12,
+         "card2" : 18,
+         "money" : 297600
+      },
+      {
+         "card1" : 31,
+         "card2" : 16,
+         "money" : 89600
+      },
+      {
+         "card1" : 46,
+         "card2" : 26,
+         "money" : 987600
+      }
+   ]
+}
+#$#       ret = 483
+insert a new player into the hall
+player user id: 1, socket num = 292
+now hall has 0 players
+insert a new player into the hall
+player user id: player3, socket num = 304
+now hall has 1 players
+insert a new player into the hall
+player user id: 9, socket num = 308
+now hall has 2 players
+insert a new player into the hall
+player user id: 10, socket num = 312
+now hall has 3 players
+insert a new player into the hall
+player user id: 4, socket num = 316
+now hall has 4 players
+socket user id: 1, socket num = 292 is detected closed
+Player 1 quit now
+socket user id: player3, socket num = 304 is detected closed
+Player player3 quit now
+socket user id: 9, socket num = 308 is detected closed
+Player 9 quit now
+socket user id: 10, socket num = 312 is detected closed
+Player 10 quit now
+socket user id: 4, socket num = 316 is detected closed
+Player 4 quit now
+Connect a client 59.66.131.74:57317
+Recv : {
+   "password" : "5",
+   "type" : 1,
+   "username" : "5"
+}
+#$#
+verify user
+        username: 5
+        password: 5
+
+A new player login now
+player id = 5, sock = 304
+
+Send 5
+{
+   "money" : 50000,
+   "result" : 1,
+   "type" : 7
+}
+#$#       ret = 59
+insert a new player into the hall
+player user id: 5, socket num = 304
+now hall has 0 players
+Now hall_ has 1 players
+
+Waiting for connecting...
+
+Recv 5
+{
+   "room" : 8,
+   "type" : 2
+}
+#$#       ret = 36
+sock user id: 5, socket num = 304 get a packet
+Room 8 join a new player
+
+Send 5
+{
+   "result" : 1,
+   "room" : 8,
+   "type" : 6
+}
+#$#       ret = 54
+
+Send 5
+{
+   "room_id" : 8,
+   "seat" : [
+      {
+         "id" : "5",
+         "is_in" : true,
+         "money" : 50000
+      }
+   ],
+   "type" : 18
+}
+#$#       ret = 148
+erase user id: 5, socket num = 304
+Now hall has 0 member

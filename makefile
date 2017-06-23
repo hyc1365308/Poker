@@ -1,15 +1,13 @@
 CXX=g++
 CXXFLAGS=-std=c++11
 JSON = ./lib_json/json_reader.o ./lib_json/json_writer.o ./lib_json/json_value.o
-GAME = ./game/Player.o ./game/Game.o
+GAME = ./game/Player.o ./game/Game.o ./game/Operate.o
 
 $(GAME): ./game/Player.h ./game/Game.h ./game/Player.cpp ./game/Game.cpp
 
 json: $(JSON)
 
 game: $(GAME)
-	$(CXX) $(CXXFLAGS) -c ./game/Player.cpp -o ./game/Player.o
-	$(CXX) $(CXXFLAGS) -c ./game/Game.cpp   -o ./game/Game.o
 
 room: room.h room.cpp
 	$(CXX) $(CXXFLAGS) -c room.cpp -o room.o

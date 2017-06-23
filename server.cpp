@@ -10,8 +10,6 @@
 
 using namespace std;
 
-mutex mtx;
-
 void Server::init()
 {
     initSocket();
@@ -172,8 +170,16 @@ void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
 
         // 更新信息
         players_[it.first] = new_info;
+    }
 
-        fout << it.first << "  " << password << "  " << money;
+    for (auto it : players_)
+    {
+        PlayerInfo player = it.second;
+
+        string password = get<0>(player);
+        int money = get<1>(player);
+
+        fout << it.first << "  " << password << "  " << money << endl;
     }
 
     fout.close();

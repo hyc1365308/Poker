@@ -215,18 +215,18 @@ void Room::castOperate(const Player* player, const int operation, const int mone
      * 返回值 :
     */
 
-    int player_pos = getPlayerPos(player->_name);
+    int player_pos = getPlayerPos(player->getName());
 
     std::string op_str = Packet::operate(player_pos, Type(operation), money_left, money_all_op);
 
     for (int i = 0; i < players_.size(); ++i)
     {
-        if (!is_blind && i == player_pos)
+        /*if (!is_blind && i == player_pos)
         {
             // 下盲注 或者 是给本人发
             // 不需要通知自己，跳过
             continue;
-        }
+        }*/
 
         // 发送当前操作信息
         players_[i]->sendData(op_str);
@@ -297,6 +297,8 @@ void Room::showResult(std::vector<std::tuple<int, Card, Card>> in_result)
 
         // 将当前用户要更新的信息添加到字典中
         update_dict[getPlayerID(i)] = player_money;
+
+        players_[i]->set_money(player_money);
     }
 
     // 向所有玩家发送结果
@@ -307,7 +309,7 @@ void Room::showResult(std::vector<std::tuple<int, Card, Card>> in_result)
     }
 
     // 在server端更新用户信息
-    // server_->updatePlayerInfo(update_dict);
+    server_->updatePlayerInfo(update_dict);
 }
 
 

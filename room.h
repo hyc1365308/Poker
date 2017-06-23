@@ -123,7 +123,8 @@ public:
     // 根据用户Player类型指针得到其PlayerSock指针
     PlayerSock* get_player(const Player* player) const 
     {
-        std::string player_name = player->_name;
+        std::string player_name = player->getName();
+        // int player_num = -1;
         for (int i = 0; i < players_.size(); ++i)
         {
             if (players_[i]->get_id() == player_name)
