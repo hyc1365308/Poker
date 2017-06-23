@@ -422,6 +422,8 @@ void Game::showResult(){
 		result.push_back(make_tuple(cur_money, card1, card2));
 		p = p->_nextPlayer;
 	}while(p != _presentPlayer);
+
+	
 	n_showResult(result);
 }
 
