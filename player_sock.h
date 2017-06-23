@@ -1,3 +1,10 @@
+/************************************************
+ * 名称 : room.h
+ * 作者 : 冯瑜林
+ * 时间 : 2017-05-12(1st)、2017-6-20(last)
+ * 内容 : 房间类头文件
+************************************************/
+
 #ifndef PLAYER_SOCK_H
 #define PLAYER_SOCK_H
 
@@ -6,7 +13,6 @@
 #include <vector>
 #include <string>
 #include <unistd.h>
-// #include <pthread.h>
 #include <string.h>
 
 #include "packet.h"

@@ -16,7 +16,7 @@ void* testConnect(void* arg)
             // sock = *it
             if ((*it)->testConnect())
             {
-                std::cout << "test connect " << *it << " " << std::endl;
+                // std::cout << "test connect " << *it << " " << std::endl;
                 ++it;
             }
             else

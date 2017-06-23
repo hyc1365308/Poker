@@ -12,26 +12,27 @@
 #include "packet.h"
 #include "./game/Game.h"
 
-#include "hall.h"
-
 #include <mutex>
 
 // 每个房间最大用户数
 #define MAX_PLAYER_NUM 8
-#define MIN_PLAYER_NUM 3
+#define MIN_PLAYER_NUM 5
 
 class Hall;
+class Server;
 
 class Room
 {
 private:
     /* 类成员变量 */
-    static int next_id;     // 下一个房间的编号，用于批量生成多个房间
+    static int next_id_;    // 下一个房间的编号，用于批量生成多个房间
     const int id_;          // 本房间编号
     pthread_t tid_;         // 本房间线程id
-    bool run_now;           // 房间当前是否正在进行游戏
-    // Server * server_;
-    Hall* hall_;
+
+    bool run_now_;          // 房间当前是否正在进行游戏
+    
+    Server* server_;        // 总服务器指针
+    Hall* hall_;            // 大厅指针
 
     std::vector<PlayerSock*> players_;  // 本房间所有玩家
     std::mutex mtx_;                    // 本房间线程锁
@@ -51,7 +52,7 @@ private:
     friend void* runRoom(void*);        // 本房间线程函数
 
 public:
-    Room(const int room_id = next_id++) : id_(room_id)
+    Room(Server* server, const int room_id = next_id_++) : server_(server), id_(room_id)
     {
         std::cout << "Room " << id_ << " is created" << std::endl;
         init();

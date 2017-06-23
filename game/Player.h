@@ -17,6 +17,7 @@ class Operate;
 
 class Player{
 	friend class Operate;
+	
 public:
 	string _name;
 	int    _money;

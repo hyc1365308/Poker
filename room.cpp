@@ -6,9 +6,11 @@
 ************************************************/
 
 #include "room.h"
+#include "hall.h"
+#include "server.h"
 
 // 房间的编号从0开始,依次向后
-int Room::next_id = 0;
+int Room::next_id_ = 0;
 
 /*
  * 私有成员函数
@@ -85,7 +87,7 @@ bool Room::append(PlayerSock * player)
      *      一个PlayerTuple的数组,表示每个玩家的信息
     */
 
-    if (players_.size() >= MAX_PLAYER_NUM || run_now)
+    if (players_.size() >= MAX_PLAYER_NUM || run_now_)
     {
         // 当前人员已满或者房间游戏已经开始
         return false;
@@ -326,7 +328,7 @@ void* runRoom(void* arg)
 
     while(true)
     {
-        room->run_now = false;    // 设置房间当前不再进行游戏
+        room->run_now_ = false;    // 设置房间当前不再进行游戏
 
         // 这里简化操作，当有不少于 MIN_PLAYER_NUM 个玩家都进入房间后直接开始
         if (room->get_num() < MIN_PLAYER_NUM)
@@ -352,9 +354,11 @@ void* runRoom(void* arg)
         Game new_game(pv, room);
 
         // 设置当前房间正在使用中
-        room->run_now = true;
+        room->run_now_ = true;
 
         // 新一轮游戏开始
         new_game.start();
+
+        room->removeAll();
     }
 }

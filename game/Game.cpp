@@ -192,6 +192,8 @@ void Game::calcPattern(){
 		if ( !p->_fold ){
 			temp[5] = p->_card[0];
 			temp[6] = p->_card[1];
+			for (int i = 0; i < 6; i++)
+				cout << temp[i] << endl;
 			p->_pattern = getPattern(temp);
 		}
 		p = p->_nextPlayer;

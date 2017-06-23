@@ -12,6 +12,23 @@ using namespace std;
 
 mutex mtx;
 
+void Server::init()
+{
+    initSocket();
+    loadPlayers();
+    for (int i = 0; i < ROOM_NUM; ++i)
+    {
+        rooms_[i] = new Room(this);
+    }
+
+    hall_ = new Hall(rooms_, ROOM_NUM);
+
+    for (int i = 0; i < ROOM_NUM; ++i)
+    {
+        rooms_[i]->set_hall(hall_);
+    }
+}
+
 bool Server::verifyUser(std::string & user_name, std::string & password)
 {
     /*
@@ -23,7 +40,7 @@ bool Server::verifyUser(std::string & user_name, std::string & password)
     cout << "\tpassword: " << password << endl;
     cout << endl;
 
-    if (players.find(user_name) == players.end())
+    if (players_.find(user_name) == players_.end())
     {
         cout << "user not in the name list" << endl;
         cout << "user name: " << user_name << endl;
@@ -31,7 +48,7 @@ bool Server::verifyUser(std::string & user_name, std::string & password)
     }
     else
     {
-        if (get<0>(players[user_name]) != password)
+        if (get<0>(players_[user_name]) != password)
         {
             cout << "password is incorrect" << endl;
             cout << "id: " << user_name << ", pass: " << password << endl;
@@ -47,12 +64,12 @@ bool Server::bindPort()
     /*
      * 绑定端口，端口为listen_port
     */
-    sin.sin_family = AF_INET;
-    sin.sin_port = htons(listen_port);
-    sin.sin_addr.S_un.S_addr = INADDR_ANY;
-    if(bind(listen_sock, (LPSOCKADDR)&sin, sizeof(sin)) == SOCKET_ERROR)
+    sin_.sin_family = AF_INET;
+    sin_.sin_port = htons(listen_port_);
+    sin_.sin_addr.S_un.S_addr = INADDR_ANY;
+    if(bind(listen_sock_, (LPSOCKADDR)&sin_, sizeof(sin_)) == SOCKET_ERROR)
     {
-        cout << "Bind port " << listen_port << " error!!!" << endl;
+        cout << "Bind port " << listen_port_ << " error!!!" << endl;
         return false;
     }
     return true;
@@ -60,7 +77,7 @@ bool Server::bindPort()
 
 bool Server::listenClients()
 {
-    if(listen(listen_sock, 5) == SOCKET_ERROR)
+    if(listen(listen_sock_, 5) == SOCKET_ERROR)
     {
         cout << "Listen error !!!" << endl;
         return false;
@@ -79,7 +96,7 @@ bool Server::acceptConnect(SOCKET & sClient)
     int nAddrlen = sizeof(remoteAddr);
 
     printf("\nWaiting for connecting...\r\n");
-    sClient = accept(listen_sock, (SOCKADDR *)&remoteAddr, &nAddrlen);
+    sClient = accept(listen_sock_, (SOCKADDR *)&remoteAddr, &nAddrlen);
 
     if(sClient == INVALID_SOCKET)
     {
@@ -95,8 +112,7 @@ bool Server::acceptConnect(SOCKET & sClient)
 bool Server::initSocket()
 {
     // init buffer
-    memset(recv_buffer, '\0', 512);
-    memset(send_buffer, '\0', 512);
+    memset(recv_buffer_, '\0', 512);
 
     // init WSA
     WORD sockVersion = MAKEWORD(2,2);
@@ -108,8 +124,8 @@ bool Server::initSocket()
     }
 
     // create socket
-    listen_sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-    if(listen_sock == INVALID_SOCKET)
+    listen_sock_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    if(listen_sock_ == INVALID_SOCKET)
     {
         cout << "Create socket error!!!" << endl;
         return false;
@@ -120,7 +136,7 @@ bool Server::initSocket()
 
 bool Server::loadPlayers()
 {
-    std::ifstream fin(file_name);
+    std::ifstream fin(player_file_path);
     int num;        // 玩家个数
     fin >> num;
     std::string id, password;
@@ -130,7 +146,7 @@ bool Server::loadPlayers()
     for (int i = 0; i < num; ++i)
     {
         fin >> id >> password >> money;
-        players[id] = make_tuple(password, money);
+        players_[id] = make_tuple(password, money);
         printf("%3d %8s %12s %7d\n", i, id.c_str(), password.c_str(), money);
     }
     fin.close();
@@ -140,22 +156,22 @@ bool Server::loadPlayers()
 
 void Server::updatePlayerInfo(std::map<std::string, int> update_dict)
 {
-    std::ofstream fout(file_name);
-    fout << players.size() << endl;
+    std::ofstream fout(player_file_path);
+    fout << players_.size() << endl;
 
     for (auto it : update_dict)
     {
         int money = it.second;
 
         // 获得原来过时的信息
-        PlayerInfo old_info = players[it.first];
+        PlayerInfo old_info = players_[it.first];
 
         // 构造新的信息
         string password = std::get<0>(old_info);
         PlayerInfo new_info = make_tuple(password, money);
 
         // 更新信息
-        players[it.first] = new_info;
+        players_[it.first] = new_info;
 
         fout << it.first << "  " << password << "  " << money;
     }
@@ -219,21 +235,21 @@ void Server::waitConnect()
             continue;
         }
 
-        memset(recv_buffer, 0, strlen(recv_buffer) * sizeof(char));
-        int ret = recv(csock, recv_buffer, 512, 0);
+        memset(recv_buffer_, 0, strlen(recv_buffer_) * sizeof(char));
+        int ret = recv(csock, recv_buffer_, 512, 0);
         if(ret > 0)
         {
-            recv_buffer[ret] = 0x00;
-            cout << "Recv : " << recv_buffer << endl;
+            recv_buffer_[ret] = 0x00;
+            cout << "Recv : " << recv_buffer_ << endl;
         }
 
         // verify the client
         Json::Value root;
-        if(!Packet::decode(recv_buffer, root))
+        if(!Packet::decode(recv_buffer_, root))
         {
             cout << "Get a bad packet, return" << endl;
             cout << "Packet content:" << endl;
-            cout << recv_buffer << endl;
+            cout << recv_buffer_ << endl;
             cout << "...\n";
             continue;
         }
@@ -263,7 +279,7 @@ void Server::waitConnect()
             cout << "set csock test alive wrong" << endl;
         }
 
-        int money = get<1>(players[user_name]);
+        int money = get<1>(players_[user_name]);
         // cout << "client sock = " << csock << endl;
         PlayerSock * new_player = new PlayerSock(csock, user_name, money);
 
@@ -274,17 +290,16 @@ void Server::waitConnect()
             cout << "cannot send login result" << endl;
         }
         
-        hall->insert(new_player);
+        hall_->insert(new_player);
 
-        std::cout << "Now hall has " << hall->size() << " players" << std::endl;
-        // server->rooms[0]->append(csock);
+        std::cout << "Now hall_ has " << hall_->size() << " players" << std::endl;
     }
 }
 
 void Server::run()
 {
     // 启动大厅hall中的两个线程
-    hall->run();
+    hall_->run();
 
     // 执行等待连接的函数
     waitConnect();
@@ -292,6 +307,6 @@ void Server::run()
 
 int main(int argc, char* argv[])
 {
-    Server server("./data/player_info.txt");
+    Server server;
     server.run();
 }

@@ -20,7 +20,7 @@
 #include <tuple>
 
 
-const int ROOM_NUM = 6;
+const int ROOM_NUM = 11;
 
 /*
  * 存储所有玩家信息的文件路径
@@ -30,48 +30,30 @@ const int ROOM_NUM = 6;
  *      玩家2：id   密码  金钱数
  *      ……
 */
-const std::string player_file_path = "./data/player_info.txt";
-const char* server_info_file_path = "./data/server_info.txt";
-
 // 玩家信息，只包括密码与钱数
 typedef std::tuple<std::string, int> PlayerInfo;   // password money
 
 class Server
 {
 private:
-    const std::string file_name;
+    /* 私有成员变量 */
+    const std::string player_file_path = "./data/player_info.txt";
+    const char* server_info_file_path = "./data/server_info.txt";
 
-    std::map<std::string, PlayerInfo> players;    // 所有玩家的信息，id作为键，money与密码为键值
+    std::map<std::string, PlayerInfo> players_;    // 所有玩家的信息，id作为键，money与密码为键值
 
-    const int listen_port;      // 监听端口
-    SOCKET listen_sock;         // 监听socket
-    sockaddr_in sin;            // 本机地址
+    const int listen_port_;     // 监听端口
+    SOCKET listen_sock_;        // 监听socket
+    sockaddr_in sin_;           // 本机地址
+    char recv_buffer_[512];     // receive buffer
 
-    // std::set<PlayerSock*> hall;
-    Room* rooms[ROOM_NUM];      // 所有房间
+    Room* rooms_[ROOM_NUM];     // 所有房间的指针
+    Hall* hall_;                // 大厅指针
 
-    char recv_buffer[512];      // receive buffer
-    char send_buffer[512];      // send buffer
-
-    void init()
-    {
-        initSocket();
-        loadPlayers();
-        for (int i = 0; i < ROOM_NUM; ++i)
-        {
-            rooms[i] = new Room();
-        }
-
-        hall = new Hall(rooms, ROOM_NUM);
-
-        for (int i = 0; i < ROOM_NUM; ++i)
-        {
-            rooms[i]->set_hall(hall);
-        }
-    }
-
-    bool initSocket();     // 初始化socket连接
-    bool loadPlayers();    // 加载用户信息
+    /* 私有成员函数 */
+    bool initSocket();          // 初始化socket连接
+    bool loadPlayers();         // 加载用户信息
+    void init();                // 初始化所有服务器信息
 
     bool verifyUser(std::string & user_name, std::string & password);
 
@@ -83,17 +65,9 @@ private:
 
     void waitConnect();
 
-    Hall* hall;
-
-    // /*
-    //  * 类友元函数
-    // */
-    // friend void* waitConnect(void*);        // 监听客户端连接函数
-    // friend void* testConnect(void*);        // 检测连接是否断开
-    // friend void* hallThread(void*);         // 大厅线程
 
 public:
-    Server(const string & file_name = player_file_path, const int listen_port = 8900) : file_name(file_name), listen_port(listen_port)
+    Server(const int listen_port = 8900) : listen_port_(listen_port)
     {
         init();
         bindPort();
@@ -110,7 +84,7 @@ public:
 
     void close()
     {
-        closesocket(listen_sock);
+        closesocket(listen_sock_);
         WSACleanup();
     }
 
