@@ -9,6 +9,7 @@
 #define SERVER_H
 
 #include "room.h"
+#include "hall.h"
 
 #include <iostream>
 #include <fstream>
@@ -46,7 +47,7 @@ private:
     SOCKET listen_sock;         // 监听socket
     sockaddr_in sin;            // 本机地址
 
-    std::set<PlayerSock*> hall;
+    // std::set<PlayerSock*> hall;
     Room* rooms[ROOM_NUM];      // 所有房间
 
     char recv_buffer[512];      // receive buffer
@@ -60,6 +61,8 @@ private:
         {
             rooms[i] = new Room();
         }
+        
+        hall = new Hall(rooms, ROOM_NUM);
     }
 
     bool initSocket();     // 初始化socket连接
@@ -73,12 +76,16 @@ private:
 
     bool acceptConnect(SOCKET & sClient);
 
-    /*
-     * 类友元函数
-    */
-    friend void* waitConnect(void*);        // 监听客户端连接函数
-    friend void* testConnect(void*);        // 检测连接是否断开
-    friend void* hallThread(void*);         // 大厅线程
+    void waitConnect();
+
+    Hall* hall;
+
+    // /*
+    //  * 类友元函数
+    // */
+    // friend void* waitConnect(void*);        // 监听客户端连接函数
+    // friend void* testConnect(void*);        // 检测连接是否断开
+    // friend void* hallThread(void*);         // 大厅线程
 
 public:
     Server(const string & file_name = player_file_path, const int listen_port = 8900) : file_name(file_name), listen_port(listen_port)

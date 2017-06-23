@@ -6,18 +6,24 @@
 
 #include <iostream>
 #include <mutex>
-
-class Room;
+#include <set>
+#include <pthread.h>
 
 class Hall
 {
 private:
     std::set<PlayerSock*> player_sets_;
-    mutex mtx_;
+    std::mutex mtx_;
+    Room** rooms_;
+    const int room_num_;
+
+    friend void* testConnect(void*);
+    friend void* waitEntry(void*);
 
 public:
-    Hall();
-    ~Hall();
+    Hall(Room** rooms, const int room_num) : rooms_(rooms), room_num_(room_num) { }
+
+    ~Hall() {}
     
     bool insert(PlayerSock * new_player)
     {
@@ -28,10 +34,9 @@ public:
         mtx_.unlock();
     }
 
-    friend void* testConnect(void*);
-    friend void* waitEntry(void*);
-
     int size() const { return player_sets_.size(); }
+
+    void run();
 };
 
 #endif

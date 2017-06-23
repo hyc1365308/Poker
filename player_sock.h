@@ -1,9 +1,12 @@
+#ifndef PLAYER_SOCK_H
+#define PLAYER_SOCK_H
+
 #include <iostream>
 #include <winsock2.h>
 #include <vector>
 #include <string>
 #include <unistd.h>
-#include <pthread.h>
+// #include <pthread.h>
 #include <string.h>
 
 #include "packet.h"
@@ -71,7 +74,7 @@ public:
         {
             std::cout << std::endl << "Recv " << id << std::endl << recv_buffer;
             std::cout << "\t  ret = " << ret << std::endl;
-            
+
             // for (int i = 0; i < ret; ++i)
             // {
             //     // 将所有空字符转换成换行符
@@ -95,3 +98,4 @@ public:
     int get_money() const { return money; }
 };
 
+#endif

@@ -16,14 +16,14 @@ void* testConnect(void* arg)
             // sock = *it
             if ((*it)->testConnect())
             {
-                cout << "test connect " << *it << " " << endl;
+                std::cout << "test connect " << *it << " " << std::endl;
                 ++it;
             }
             else
             {
                 // sock has been closed
                 hall->mtx_.lock();
-                cout << "socket " << *it << " is detected closed" << endl;
+                std::cout << "socket " << *it << " is detected closed" << std::endl;
                 delete (*it);
                 it = hall->player_sets_.erase(it);
                 hall->mtx_.unlock();
@@ -43,36 +43,36 @@ void* waitEntry(void* arg)
     {
         for (auto it = hall->player_sets_.begin(); it != hall->player_sets_.end(); ++it)
         {
-            // cout << "check sock " << (*it) << "'s entry" << endl;
+            // std::cout << "check sock " << (*it) << "'s entry" << std::endl;
             std::string packet = (*it)->recvData();
             if (packet != "")
             {
-                cout << "sock " << *it << " get a packet" << endl;
+                std::cout << "sock " << *it << " get a packet" << std::endl;
                 Json::Value root;
                 if (Packet::decode(packet, root) && root["type"] == ENTRY)
                 {
                     int room_id = root["room"].asInt();
 
-                    if (room_id < 0 || room_id >= 6)
+                    if (room_id < 0 || room_id >= hall->room_num_)
                     {
-                        cout << "cannot find room " << room_id << endl;
+                        std::cout << "cannot find room " << room_id << std::endl;
                         continue;
                     }
 
                     // 向房间添加新的成员
-                    bool flag = hall->rooms[room_id]->append(*it);
+                    bool flag = hall->rooms_[room_id]->append(*it);
                     
                     PlayerSock* old_sock = (*it);
 
                     if (flag)
                     {
                         hall->mtx_.lock();
-                        cout << "erase " << (*it) << endl;
+                        std::cout << "erase " << (*it) << std::endl;
                         it = hall->player_sets_.erase(it);
-                        cout << "erase done\n";
+                        std::cout << "erase done\n";
                         hall->mtx_.unlock();
 
-                        std::cout << "Now hall has " << hall.size() << " member" << std::endl;
+                        std::cout << "Now hall has " << hall->size() << " member" << std::endl;
                     }
                 }
             }
@@ -80,4 +80,17 @@ void* waitEntry(void* arg)
 
         Sleep(100);  // sleep
     }
+}
+
+void Hall::run()
+{
+    // create test connection thread
+    pthread_t test_tid;
+    pthread_create(&test_tid, NULL, testConnect, this);
+
+    // create wait entry thread
+    pthread_t hall_tid;
+    pthread_create(&hall_tid, NULL, waitEntry, this);
+
+    std::cout << "hall thread is running" << std::endl;
 }

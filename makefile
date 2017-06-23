@@ -14,11 +14,14 @@ game: $(GAME)
 room: room.h room.cpp
 	$(CXX) $(CXXFLAGS) -c room.cpp -o room.o
 
-server: game json
-	$(CXX) $(JSON) $(GAME) room.o server.cpp -lws2_32 -o server2
+hall: hall.h hall.cpp
+	$(CXX) $(CXXFLAGS) -c hall.cpp -o hall.o
+
+server: game json room hall
+	$(CXX) $(JSON) $(GAME) room.o hall.o server.cpp -lws2_32 -o server
 
 server2: json game room
-	$(CXX) $(JSON) $(GAME) room.o server.cpp -lws2_32 -o server
+	$(CXX) $(JSON) $(GAME) room.o hall.o server.cpp -lws2_32 -o server2
 
 client: json
 	$(CXX) $(CXXFLAGS) ./lib_json/*.o client.cpp -lws2_32 -o client
